@@ -88,6 +88,7 @@ enum MenuAction {
   IN,
   LOOM,
   OUT,
+  Roll_Entry,
   stock,
   bail_Stock,
   bailing_Report,
@@ -107,6 +108,7 @@ enum MenuAction {
   Packing_Department,
   Packing_Report,
   In_Report,
+  Manual_PLAN_report,
   Out_Report,
   Pcs_Report,
   Rollwise_Report,
@@ -120,10 +122,11 @@ enum MenuAction {
   Order_Planning,
   Order_Composition,
   combine_To_Loom,
+  manual_Planning,
   saved_List,
   cuttingWise,
   rollWise,
-  componentWise,
+  componentWise, bomList,
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -270,7 +273,7 @@ List<MenuAction> getActionsForMenu(String label) {
         MenuAction.combine_To_Loom,
       ];
     case 'LOOM':
-      return [MenuAction.IN,  MenuAction.saved_List,MenuAction.Out_Report];
+      return [MenuAction.IN,  MenuAction.saved_List,MenuAction.Out_Report,MenuAction.Manual_PLAN_report];
     case 'LAMINATION':
       return [MenuAction.IN, MenuAction.OUT, MenuAction.In_Report,MenuAction.Out_Report];
     case 'CUTTING':
@@ -319,8 +322,8 @@ List<MenuAction> getActionsForMenu(String label) {
       return [
         MenuAction.IN,
         MenuAction.OUT,
-        MenuAction.report,
-        MenuAction.stock,
+        // MenuAction.report,
+        // MenuAction.stock,
       ];
     // case 'LEDGER':
     //   return [MenuAction.Webbing_Ledger];
@@ -333,12 +336,14 @@ List<MenuAction> getActionsForMenu(String label) {
       ];
 
     case 'TAPELINE':
-      return [MenuAction.IN,MenuAction.recent_entries, MenuAction.OUT];
+      return [MenuAction.IN,
+        // MenuAction.recent_entries, MenuAction.OUT
+      ];
     case 'MACHINE':
       return [MenuAction.scan];
 
     case 'JBL LOOM':
-      return [MenuAction.LOOM, MenuAction.report];
+      return [MenuAction.LOOM, MenuAction.saved_List,MenuAction.report];
 
     case 'JBL RMD':
       return [

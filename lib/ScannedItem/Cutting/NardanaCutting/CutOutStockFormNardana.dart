@@ -29,7 +29,7 @@ class CuttingOutStockFormNardana extends StatefulWidget {
 class _CuttingOutStockFormNardanaState
     extends State<CuttingOutStockFormNardana> {
   // ─────────────── Theme ───────────────
-  static const _primary = Color(0xFF1A56DB);
+  static const _primary = C.primaryDark;
   static const _surface = Color(0xFFF8FAFF);
   static const _border = Color(0xFFDDE3F0);
   static const _labelColor = Colors.black;
@@ -141,7 +141,7 @@ class _CuttingOutStockFormNardanaState
   late final currentTime =
       "${now.hour.toString().padLeft(2, '0')}:"
       "${now.minute.toString().padLeft(2, '0')}";
-      // "${now.second.toString().padLeft(2, '0')}";
+  // "${now.second.toString().padLeft(2, '0')}";
   @override
   void initState() {
     super.initState();
@@ -190,7 +190,7 @@ class _CuttingOutStockFormNardanaState
     _fabricWidthCtrl.text = p.fabricWidth;
 
     _fabricBaffleCtrl.text = p.cutType ?? "";
-    _baffleCtrl.text = " ";
+    _baffleCtrl.text = p.fabricConstruction;
 
     _laminationCtrl.text = p.laminationType ?? "";
 
@@ -381,30 +381,53 @@ class _CuttingOutStockFormNardanaState
     });
   }
 
+  // Future<void> _loadLaminationAndBaffle() async {
+  //   setState(() => _isLoadingLamination = true);
+  //
+  //   final data = await NaradanaApiService.getLaminationAndBaffle();
+  //
+  //   setState(() {
+  //     _laminationList = data["laminations"]!;
+  //     _baffleList = data["buffles"]!;
+  //
+  //     // ✅ AUTO SELECT FIRST VALUE
+  //     if (_laminationList.isNotEmpty) {
+  //       _selectedLamination = _laminationList.first;
+  //       _laminationCtrl.text = _selectedLamination!;
+  //     }
+  //
+  //     if (_baffleList.isNotEmpty) {
+  //       _selectedBaffle = _baffleList.first;
+  //       _baffleCtrl.text = _selectedBaffle!;
+  //     }
+  //
+  //     _isLoadingLamination = false;
+  //   });
+  // }
   Future<void> _loadLaminationAndBaffle() async {
     setState(() => _isLoadingLamination = true);
 
     final data = await NaradanaApiService.getLaminationAndBaffle();
 
     setState(() {
-      _laminationList = data["laminations"]!;
-      _baffleList = data["buffles"]!;
+      _laminationList = List<String>.from(data["laminations"] ?? []);
+      _baffleList = List<String>.from(data["buffles"] ?? []);
 
-      // ✅ AUTO SELECT FIRST VALUE
+      // Lamination dropdown default
       if (_laminationList.isNotEmpty) {
         _selectedLamination = _laminationList.first;
         _laminationCtrl.text = _selectedLamination!;
       }
 
+      // Fabric Construction dropdown default
       if (_baffleList.isNotEmpty) {
         _selectedBaffle = _baffleList.first;
-        _baffleCtrl.text = _selectedBaffle!;
+        // _baffleCtrl.text = _selectedBaffle!;
       }
 
       _isLoadingLamination = false;
     });
   }
-
   // Future<void> _loadGsm() async {
   //   setState(() => _isLoadingGsm = true);
   //   final data = await VisaApiService.getGsmOrFabricWidth(type: "GSM");
@@ -689,13 +712,13 @@ class _CuttingOutStockFormNardanaState
   void _generateFabricCode() {
     final code =
         "${_fabricWidthCtrl.text}-"
-        "${_baffleCtrl.text}-"
+        "${_fabricBaffleCtrl.text}-"
         "${_selectedShift ?? ''}-"
         "${_fabricGsmCtrl.text}-"
         "${_fabricConstCtrl.text}-"
         "${_colorCtrl.text}-"
         "${_cutTypeCtrl.text}-"
-        "${_fabricBaffleCtrl.text}";
+        "${_baffleCtrl.text}";
 
     setState(() {
       _generateCodeCtrl.text = code;
@@ -989,22 +1012,23 @@ class _CuttingOutStockFormNardanaState
         _card([
           _row([
             _field("Fabric Type / Use", _fabricTypeCtrl, readOnly: true),
-            _field("Fabric Construction", _fabricBaffleCtrl, readOnly: true),
-            //
+            _field("Fabric Construction", _baffleCtrl, readOnly: true),
+
             // _isLoadingLamination
             //     ? _loadingLabelBox("Fabric Construction")
             //     : _genericDropdown(
-            //         label: "Fabric Construction",
-            //         items: _baffleList,
-            //         value: _selectedBaffle,
-            //         isLoading: false,
-            //         onChanged: (val) {
-            //           setState(() {
-            //             _selectedBaffle = val;
-            //             _baffleCtrl.text = val ?? "";
-            //           });
-            //         },
-            //       ),
+            //   label: "Fabric Construction",
+            //   items: _baffleList,
+            //   value: _selectedBaffle,
+            //   isLoading: false,
+            //
+            //   onChanged: (val) {
+            //     setState(() {
+            //       _selectedBaffle = val;
+            //       _baffleCtrl.text = val ?? "";
+            //     });
+            //   },
+            // ),
           ]),
           _row([
             _field("Color", _colorCtrl, readOnly: true),
@@ -1024,11 +1048,7 @@ class _CuttingOutStockFormNardanaState
                   ),
           ]),
           _row([
-            _field(
-              "Fabric GSM",
-              _fabricGsmCtrl,
-              readOnly: true,
-            ),
+            _field("Fabric GSM", _fabricGsmCtrl, readOnly: true),
             // _isLoadingGsm
             //     ? _loadingLabelBox("Fabric GSM")
             //     : _genericDropdownStr(
@@ -1069,21 +1089,21 @@ class _CuttingOutStockFormNardanaState
           _row([
             _field("Baffle / Type", _fabricBaffleCtrl, readOnly: true),
 
-            _field("Lamination Type", _fabricConstCtrl, readOnly: true),
-            // _isLoadingLamination
-            //     ? _loadingLabelBox("Lamination Type")
-            //     : _genericDropdown(
-            //         label: "Lamination Type",
-            //         items: _laminationList,
-            //         value: _selectedLamination,
-            //         isLoading: false,
-            //         onChanged: (val) {
-            //           setState(() {
-            //             _selectedLamination = val;
-            //             _laminationCtrl.text = val ?? "";
-            //           });
-            //         },
-            //       ),
+            // _field("Lamination Type", _fabricConstCtrl, readOnly: true),
+            _isLoadingLamination
+                ? _loadingLabelBox("Lamination Type")
+                : _genericDropdown(
+                    label: "Lamination Type",
+                    items: _laminationList,
+                    value: _selectedLamination,
+                    isLoading: false,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedLamination = val;
+                        _fabricConstCtrl.text = val ?? "";
+                      });
+                    },
+                  ),
           ]),
           _row([
             _field("Cut Type", _cutTypeCtrl, readOnly: true),
@@ -1435,6 +1455,10 @@ class _CuttingOutStockFormNardanaState
 
     final int code = widget.production.rollCode;
     final rollWeight = double.tryParse(_rollWeightCtrl.text) ?? 0.0;
+
+
+    print("👉////////////////");
+
 
     print("👉 rollCode: $code");
     print("👉 rollWeight: $rollWeight");
@@ -1795,25 +1819,24 @@ class _CuttingOutStockFormNardanaState
     spacing: 8,
     runSpacing: 8,
     children: [
-      _actionBtn(
-        "Save",
-        Icons.check_rounded,
-        _primary,
-        _saveForm,
-        loading: _isLoading,
-      ),
-      // _actionBtn("Update", Icons.edit_rounded, const Color(0xFF00897B), () {}),
-      // _actionBtn(
-      //   "Clear",
-      //   Icons.refresh_rounded,
-      //   const Color(0xFFF59E0B),
-      //   _clearForm,
-      // ),
-      _actionBtn(
-        "Exit",
-        Icons.logout_rounded,
-        const Color(0xFFEF4444),
-        () => Navigator.maybePop(context),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _actionBtn(
+            "Save",
+            Icons.check_rounded,
+            _primary,
+            _saveForm,
+            loading: _isLoading,
+          ),
+
+          _actionBtn(
+            "Exit",
+            Icons.logout_rounded,
+            const Color(0xFFEF4444),
+            () => Navigator.maybePop(context),
+          ),
+        ],
       ),
     ],
   );

@@ -36,12 +36,16 @@ import '../../util/sharedpreference/shared_preference.dart';
 import '../auth_exception.dart';
 
 class NaradanaApiService {
-  // static const String _baseUrl = 'http://192.168.29.125:7165/api';
-  // static const String _baseUrl = 'http://fibcsoftware.in:4430/api/api';
+  // static const String _baseUrl = 'http://190.92.175.47:80/api/api';
+  static const String _baseUrl = 'http://192.168.29.125:7165/api';
+
+  // static const String _baseUrl = 'http://190.92.175.47/ShriShakti/api';
+
+  //static const String _baseUrl = 'http://192.168.29.39:44349/api/api';
   // static const String _baseUrl = 'http://190.92.175.47:80/JblAPI/api';
   // static const String _baseUrl = 'http://190.92.175.47:80/JBL_DEMO/api';
   // static const String _baseUrl = 'http://190.92.175.47:80/Visa/api';
-  static const String _baseUrl = 'http://190.92.175.47:80/Nardana/api';
+  // static const String _baseUrl = 'http://190.92.175.47:80/Nardana/api';
   // static const String _baseUrl = 'http://190.92.175.47:80/ASIA_API/api';
   // static const String _baseUrl ='http://190.92.175.47:80/API/api';
   // static const String _baseUrl = 'http://190.92.175.47:80/Nardana';
@@ -368,7 +372,7 @@ class NaradanaApiService {
   Future<List<RmdStockReportModel>> fetchRmdStock(int page, int size) async {
     final url = "$_baseUrl/Rmd/Rmd/GetRmdStock?pageNumber=$page&pageSize=$size";
 
-    // print("🌐 GET => $url");
+    print("🌐 GET => $url");
 
     final res = await http.get(Uri.parse(url), headers: await authHeaders());
 
@@ -658,7 +662,7 @@ class NaradanaApiService {
     final res = await http.get(url, headers: await authHeaders());
     print("🌐 GET => $url");
     // print("📡 Status => ${res.statusCode}");
-    debugPrint("📦 Response => ${res.body}", wrapWidth: 50);
+    debugPrint("📦 Response => ${res.body}",);
     print("======================================");
     if (res.statusCode == 200) {
       final jsonData = jsonDecode(res.body);
@@ -978,8 +982,8 @@ class NaradanaApiService {
 
       if (response.statusCode == 200) {
         final List data = jsonDecode(response.body);
-        // debugPrint("PRINT API STATUS : ${response.statusCode}");
-        // debugPrint("PRINT API BODY : ${response.body}");
+        debugPrint("PRINT API STATUS : ${response.statusCode}");
+        debugPrint("PRINT API BODY : ${response.body}");
         return data
             .map<String>((e) => e["customeR_NAME"].toString().trim())
             .where((e) => e.isNotEmpty)
@@ -998,20 +1002,22 @@ class NaradanaApiService {
   Future<List<Map<String, dynamic>>> fetchBomInquiryReport({
     required String unitName,
     int pageNumber = 1,
-    int pageSize = 500,
+    int pageSize = 50,
   }) async {
     try {
       final response = await http.get(
         Uri.parse(
           "$_baseUrl/Marketing/BomInquiryReport"
           "?extra37=$unitName"
-          "&pageNumber=$pageNumber"
-          "&pageSize=$pageSize",
+          // "&pageNumber=$pageNumber"
+          // "&pageSize=$pageSize",
         ),
         headers: await authHeaders(),
       );
 
       if (response.statusCode == 200) {
+
+        debugPrint("PRINT Bom Inquiry Report BODY : ${response.body}");
         final List data = jsonDecode(response.body);
 
         return List<Map<String, dynamic>>.from(data);
@@ -1341,10 +1347,13 @@ class NaradanaApiService {
 
   Future<List<CombineToLoomModel>> getCombineToLoomList(String? unit) async {
     try {
+      final url = Uri.parse("$_baseUrl/Planning/CombineToLoomList?unit=$unit");
       final response = await http.get(
         Uri.parse("$_baseUrl/Planning/CombineToLoomList?unit=$unit"),
         headers: await authHeaders(),
       );
+      debugPrint("Response Body => $url");
+
       debugPrint("Response Body => ${response.body}");
 
       debugPrint("==================================");
@@ -1451,7 +1460,10 @@ class NaradanaApiService {
       headers: await authHeaders(),
     );
 
-    debugPrint("ForwardList Status : ${response.statusCode}");
+    debugPrint("ForwardList Status : ${  Uri.parse(
+      "$_baseUrl/Planning/ForwardList"
+          "?unit=$unit&orderNo=$orderNo",
+    )}");
 
     debugPrint("ForwardList Response : ${response.body}");
 

@@ -11,6 +11,8 @@ import '../../NARDANA/CUTTING_Stock/Reports/ComponentReportmodel.dart';
 import '../../NARDANA/CUTTING_Stock/Reports/CuttingReport_Model.dart';
 import '../../NARDANA/CUTTING_Stock/Reports/InReportModel.dart';
 import '../../NARDANA/CUTTING_Stock/Reports/RollWiseReportModel.dart';
+import '../../NARDANA/LoomReprts/ManualPlanningModel.dart';
+import '../../NARDANA/Planning/ModelClass/Bom/PartyNameDropdown.dart';
 import '../../ScannedItem/Cutting/NardanaCutting/modelclass/CuttingAprrovalModelNardana.dart';
 import '../../ScannedItem/Cutting/NardanaCutting/modelclass/CutPcsItemNardana.dart';
 import '../../ScannedItem/Folding/Folding_In.dart';
@@ -34,12 +36,14 @@ import '../../util/sharedpreference/shared_preference.dart';
 import '../auth_exception.dart';
 
 class InStockService {
-  // static const String baseUrl = 'http://192.168.29.125:7165/api';
-  // static const String baseUrl = 'http://fibcsoftware.in:4430/api/api';
+  static const String baseUrl = 'http://192.168.29.125:7165/api';
+  // static const String baseUrl = 'http://190.92.175.47:80/api/api';
+  // static const String baseUrl = 'http://190.92.175.47/ShriShakti/api';
+
   // static const String baseUrl = 'http://190.92.175.47:80/JblAPI/api';
   // static const String baseUrl = 'http://190.92.175.47:80/JBL_DEMO/api';
   // static const String baseUrl = 'http://190.92.175.47:80/Visa/api';
-  static const String baseUrl = 'http://190.92.175.47:80/Nardana/api';
+  // static const String baseUrl = 'http://190.92.175.47:80/Nardana/api';
 
   // static const String baseUrl = 'http://190.92.175.47:80/ASIA_API/api';
   // static const String baseUrl ='http://190.92.175.47:80/API/api';
@@ -427,7 +431,7 @@ class InStockService {
       "REQUEST BODY: ${jsonEncode({"username": username, "password": password, "unit": unit})}",
     );
 
-    print("RESPONSE CODE: ${response.statusCode}");
+    print("RESPONSE CODE: $url");
     print("RESPONSE BODY: ${response.body}");
     debugPrint('LOGIN STATUS: ${response.statusCode}');
     debugPrint('LOGIN RESPONSE: ${response.body}');
@@ -446,6 +450,36 @@ class InStockService {
       throw Exception('Server error: ${response.statusCode}');
     }
   }
+  Future<Map<String, List<String>>> getBomPartyList() async {
+    try {
+      final response = await http.get(
+        Uri.parse("$baseUrl/Planning/GeneratedInquiry"),
+        headers: await authHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(response.body);
+
+        return {
+          "generatedInquiry": List<String>.from(json["generatedInquiry"] ?? []),
+          "customerNames": List<String>.from(json["customerNames"] ?? []),
+        };
+      }
+
+      return {
+        "generatedInquiry": [],
+        "customerNames": [],
+      };
+    } catch (e) {
+      debugPrint("getBomList Error: $e");
+
+      return {
+        "generatedInquiry": [],
+        "customerNames": [],
+      };
+    }
+  }
+
 
   Future<List<String>> getLaminationOperators() async {
     final url = Uri.parse(
@@ -1156,8 +1190,8 @@ class InStockService {
       // debugPrint('Response dispatch initResponse :::::$response');
 
       final data = json.decode(response.body);
-      // debugPrint('Response dispatch init:::::$data');
-      // _checkUnauthorized(response);
+      debugPrint('Response dispatch init:::::$data');
+      _checkUnauthorized(response);
       cachedDispatchInit = DispatchInitModel.fromJson(data);
       return cachedDispatchInit!;
     } else {
@@ -1528,9 +1562,24 @@ class InStockService {
       },
     );
 
+
     final response = await http.get(uri, headers: await authHeaders());
+    debugPrint("Loom LOist Resposne Body ::::::${uri}");
+    debugPrint("STATUS LOOM dropdown CODE: ${response.statusCode}");
+    debugPrint("Loom LOist Resposne Body ::::::${response.body}");
+    print("Status Code: ${response.statusCode}");
+    print("Headers: ${response.headers}");
+    print("Body: ${response.body}");
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        "API Error ${response.statusCode}: ${response.body}",
+      );
+    }
 
     if (response.statusCode == 200) {
+
+      debugPrint("Loom LOist Resposne Body ::::::${response.body}");
       final jsonData = json.decode(response.body);
 
       if (jsonData['status'] == 'success') {
@@ -2044,7 +2093,9 @@ class InStockService {
     final response = await http.get(url, headers: await authHeaders());
 
     if (response.statusCode == 200) {
+
       final List data = json.decode(response.body);
+      print("Bom No Response: $data");
 
       List<String> woList = data.map((e) => e["wO_NUMBER"].toString()).toList();
 
@@ -2236,6 +2287,7 @@ class InStockService {
       url,
       headers: await InStockService.authHeaders(),
     );
+    print("👉 Loom List Response: ${url}");
 
     print("👉 Loom List Response: ${res.body}");
 
@@ -2261,6 +2313,9 @@ class InStockService {
     );
 
     if (response.statusCode == 200) {
+      print("👉 Loom List Response: ${response}");
+      print("👉 Loom List Response: ${response.body}");
+
       return jsonDecode(response.body);
     } else {
       throw Exception("Failed to print barcode");
@@ -2337,4 +2392,35 @@ class InStockService {
       throw Exception("Transfer failed");
     }
   }
+
+
+  Future<List<ManualPlanningModel>> fetchManualPlanning({
+    DateTime? from,
+    DateTime? to,
+    String? unit
+  }) async {
+
+    final formatter = DateFormat("yyyy-MM-dd");
+
+    final url = Uri.parse(
+        "$baseUrl/api/LoomForward/manualplanning"
+            "?fromDate=${formatter.format(from!)}"
+            "&toDate=${formatter.format(to!)}"
+            "&unit=$unit");
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+
+      final jsonData = jsonDecode(response.body);
+
+      return (jsonData["data"] as List)
+          .map((e) => ManualPlanningModel.fromJson(e))
+          .toList();
+    }
+
+    throw Exception("Failed");
+  }
+
+
 }

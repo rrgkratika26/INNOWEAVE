@@ -8,8 +8,10 @@ class LogoutService {
       //      'http://fibcsoftware.in:4430/api/api/Login/logout';
       // 'http://190.92.175.47:80/JblAPI/api/Login/logout';
       // 'http://190.92.175.47:80/JBL_DEMO/api/Login/logout';
-        'http://190.92.175.47:80/Nardana/api';
-  // 'http://192.168.29.125:7165/api';
+      //   'http://190.92.175.47:80/Nardana/api';
+  // 'http://190.92.175.47:80/api/api';
+ ' http://190.92.175.47/ShriShakti/api';
+  // 'http://192.168.29.39:44349/api/api';
 
   // 'http://190.92.175.47:80/ASIA_API/api';
   // 'http://190.92.175.47:80/API/api';

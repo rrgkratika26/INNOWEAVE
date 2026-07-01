@@ -1310,71 +1310,41 @@ import 'LoginModel.dart';
 //  REDIRECT HELPER
 // ─────────────────────────────────────────────────────────────────────────────
 void navigateByRedirect(LoginModel model) {
-  final r = model.redirect.trim().toLowerCase();
+  final redirect = model.redirect.trim().toLowerCase();
+  final department = model.department.trim().toUpperCase();
 
-  const routeMap = <String, String>{
-    'inquiry': AppRoutes.inquiryReport,
-    'inquiry_report': AppRoutes.inquiryReport,
-    'inquirypannel': AppRoutes.InquiryPannel,
-    'planning': AppRoutes.orderPlanning,
-    'order_planning': AppRoutes.orderPlanning,
-    'order_composition': AppRoutes.orderComposition,
-    'to_loom': AppRoutes.toLoom,
-    'loom': AppRoutes.loomIn,
-    'loom_reports': AppRoutes.loomReports,
-    'loom_savelist': AppRoutes.loomSaveList,
-    'loomlist': AppRoutes.loomList,
+  // PADMIN
+  if (department == "PADMIN") {
+    Get.offAllNamed(AppRoutes.dashboard);
+    return;
+  }
+
+  switch (department) {
+    case "RMD":
+    case "LOOM":
+    case "LAMINATION":
+    case "CUTTING":
+    case "BAG":
+    case "BALING":
+    case "WEBBING":
+    case "PLANNING":
+    case "TAPELINE":
+    case "INQUIRY":
+      Get.offAllNamed(AppRoutes.dashboard);
+      return;
+  }
+
+  // fallback using redirect
+  final routeMap = {
     'rmd': AppRoutes.rmdIn,
-    'rmd_in': AppRoutes.rmdIn,
-    'rmd_out': AppRoutes.rmdOut,
-    'rmd_reports': AppRoutes.rmdNardanaReports,
-    'rmd_stock': AppRoutes.rmdNardanaStock,
-    'jbl_rmd_in': AppRoutes.jblRmdIn,
-    'jbl_rmd_out': AppRoutes.jblRmdOut,
-    'jbl_rmd_stock': AppRoutes.jblRmdStockReports,
+    'loom': AppRoutes.loomIn,
     'lamination': AppRoutes.lamination,
-    'lamination_out': AppRoutes.laminationOutStock,
-    'lam_in_reports': AppRoutes.lamNaradanaInReport,
-    'lam_out_reports': AppRoutes.lamNaradanaOutReport,
-
-    'jbl_lamination': AppRoutes.jblLamination,
-    'cutting_out': AppRoutes.nardanaCutOutList,
-    'rollWiseReport':    AppRoutes.rollWiseReport,
-    'componentWiseReport':    AppRoutes.componentWiseReport,
-    'cuttingWiseReport':    AppRoutes.cuttingWiseReport,
-
-    'cutting_stock': AppRoutes.cutGroupStock,
-    'cutting_approval': AppRoutes.cuttingnardana,
-    'cutting_issue': AppRoutes.cuttingIssuenardana,
-    'jbl_cutting': AppRoutes.jblCuttingIn,
     'bag': AppRoutes.bagEntry,
-    'bag_report': AppRoutes.bagReport,
-    'jbl_bag': AppRoutes.jblBagStoreIssue,
     'baling': AppRoutes.baleEntry,
-    'baling_report':AppRoutes.balingReport,
-    'baleStockReport': AppRoutes.baleStockReport,
-    'baling_dispatch': AppRoutes.baleDispatch,
-    'baling_stock': AppRoutes.baleStockgroup,
-    'jbl_baling': AppRoutes.jblBailing,
     'webbing': AppRoutes.webbingIn,
-    'webbing_out': AppRoutes.webbingOut,
-    'webbing_report': AppRoutes.webbNardanaReport,
-    'webbing_ledger': AppRoutes.stockLedger,
-    'jbl_webbing': AppRoutes.jblWebbIn,
-    'jbl_dispatch': AppRoutes.jblScan,
-    'tapeline': AppRoutes.tapelineIn,
-    'marketing': AppRoutes.InquiryPannel,
   };
 
-  final namedRoute = routeMap[r];
-
-  if (namedRoute != null) {
-    Get.offAllNamed(namedRoute);
-  } else {
-    // Empty / "dashboard" / unknown →
-    // DashboardController decides: PADMIN grid OR dept-direct action grid
-    Get.offAllNamed(AppRoutes.dashboard);
-  }
+  Get.offAllNamed(routeMap[redirect] ?? AppRoutes.dashboard);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1941,12 +1911,14 @@ class _LoginPageState extends State<LoginPage>
               ),
               // ── Update this list for your deployed units ───────────────
               // items: ['UNIT-CONGO'].map((String value) {
-                items: ['UNIT-NARDANA'].map((String value) {
+              //   items: ['UNIT-NARDANA'].map((String value) {
              // items: ['UNIT-SILVASSA'].map((String value) {
              // items: ['FIBC'].map((String value) {
              //   items: ['DINESH-POLYFAB', 'JBL'].map((String value) {
              // items: ['UNIT-1'].map((String value) {
-             //   items: ['INNOWEAVE'].map((String value) {
+               items: ['INNOWEAVE'].map((String value) {
+    // items: ['UNIT-SHREE_SHAKTI'].map((String value) {
+
 
                 return DropdownMenuItem<String>(
                   value: value,

@@ -2030,14 +2030,14 @@ class _CuttingOutStockFormState extends State<CuttingOutStockForm> {
   void _generateFabricCode() {
     final code =
         "${_fabricWidthCtrl.text}-"
-        "${_baffleCtrl.text}-"
+            "${_fabricBaffleCtrl.text}-"
         "${_fabricTypeCtrl.text}-"
         "${_fabricGsmCtrl.text}-"
         "${_laminationCtrl.text}-"
         "${_colorCtrl.text}-"
         "${_specialIdCtrl.text}-"
         "${_cutTypeCtrl.text}-"
-        "${_fabricBaffleCtrl.text}";
+            "${_baffleCtrl.text}";
 
     setState(() {
       _generateCodeCtrl.text = code;
@@ -2318,7 +2318,7 @@ class _CuttingOutStockFormState extends State<CuttingOutStockForm> {
         _card([
           _row([
             _field("Fabric Type / Use", _fabricTypeCtrl, readOnly: true),
-            _field("Fabric Construction", _fabricBaffleCtrl, readOnly: true),
+            _field("Fabric Construction", _baffleCtrl, ),
           ]),
           _row([
             _field("Color", _colorCtrl, readOnly: true),

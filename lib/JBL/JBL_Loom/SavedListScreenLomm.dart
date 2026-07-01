@@ -716,6 +716,7 @@
 
 
 
+import 'package:IMS/AdminDashBoard/DepartmentDashboard.dart';
 import 'package:IMS/services/getSupervisors/getSupervisors.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -727,6 +728,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:thermal_printer_plus/thermal_printer.dart';
 
+import '../../AdminDashBoard/NewAdminDashboard.dart';
 import '../../Color/Colorclass.dart';
 import 'LoomListSavedModel.dart';
 
@@ -1255,6 +1257,10 @@ class _SavedListScreenState extends State<SavedListScreen> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+      /// Wait a moment so snackbar is visible
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      /// Navigate to Dashboard
     } catch (e) {
       Get.snackbar(
         "Error",
@@ -1476,8 +1482,10 @@ class _SavedListScreenState extends State<SavedListScreen> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      // Previous screen par wapas
-      Get.back();
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      /// Navigate to Dashboard
+      Get.offAll(() => const NewAdminDashboard());
 
     } catch (e) {
       Get.snackbar(

@@ -7,25 +7,37 @@ import '../../AdminDashBoard/DepartmentDashboard.dart';
 import '../../Color/Colorclass.dart';
 import '../../services/GlobalLoader/GloabalUnit.dart';
 import '../../services/NardanaApis/NardanaApi.dart';
+import '../../services/getSupervisors/getSupervisors.dart';
 import '../../util/sharedpreference/shared_preference.dart';
+import 'ModelClass/Bom/PartyNameDropdown.dart';
 import 'ModelClass/CombineToLoomModel.dart';
 import 'ModelClass/DropdownModel_GenCode.dart';
 import 'ModelClass/ForwardListModel.dart';
 import 'ModelClass/PartyNameModel.dart';
 
-class GenerateCodeScreen extends StatefulWidget {
-  final CombineToLoomModel data;
+class ManualToLoomScreen extends StatefulWidget {
+  // final CombineToLoomModel data;
 
-  const GenerateCodeScreen({super.key, required this.data});
+  const ManualToLoomScreen({super.key});
 
   @override
-  State<GenerateCodeScreen> createState() => _GenerateCodeScreenState();
+  State<ManualToLoomScreen> createState() => _ManualToLoomScreenState();
 }
 
-class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
+class _ManualToLoomScreenState extends State<ManualToLoomScreen> {
   bool dropdownLoading = true;
   final appCtrl = Get.find<AppController>();
 
+  String? selectedPartyName;
+  String? selectedPoNo;
+  String? selectedArticle;
+
+  // List<InquiryModel> inquiryList = [];
+  List<String> inquiryList = [];
+  String? selectedBomNo;
+  List<String> partyList = [];
+  List<String> poList = [];
+  List<String> articleList = [];
   late String unit = appCtrl.unit.value;
   List<FabricDropdownModel> typeList = [];
   List<FabricDropdownModel> fabricTypeList = [];
@@ -51,9 +63,11 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
   final widthController = TextEditingController();
   bool isForwardLoading = false;
   final gsmController = TextEditingController();
-
+  final poController = TextEditingController();
+  final articleController = TextEditingController();
   final extraMtrController = TextEditingController();
-
+  final reqMtrController = TextEditingController();
+  final reqKgController = TextEditingController();
   final extraKgController = TextEditingController();
 
   Map<String, PartyNameModel> partyMap = {};
@@ -64,21 +78,25 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
   void initState() {
     super.initState();
 
-    actualMtr = double.tryParse(widget.data.mtr.toString()) ?? 0;
-    actualKg = double.tryParse(widget.data.kg.toString()) ?? 0;
-
     extraMtrController.addListener(calculateValues);
-
+    reqMtrController.addListener(calculateValues);
+    reqKgController.addListener(calculateValues);
     _initialize();
   }
 
   Future<void> _initialize() async {
     await loadDropdownData();
+    loadBomList();
     await _loadData();
   }
 
   @override
   void dispose() {
+    poController.dispose();
+    articleController.dispose();
+
+    reqMtrController.dispose();
+    reqKgController.dispose();
     widthController.dispose();
     gsmController.dispose();
     extraMtrController.dispose();
@@ -87,16 +105,13 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     super.dispose();
   }
 
-
   void calculateValues() {
-    double reqMtr = double.tryParse(widget.data.mtr.toString()) ?? 0;
-
-    double reqKg = double.tryParse(widget.data.kg.toString()) ?? 0;
+    double reqMtr = double.tryParse(reqMtrController.text) ?? 0;
+    double reqKg = double.tryParse(reqKgController.text) ?? 0;
 
     double extraMtr = double.tryParse(extraMtrController.text) ?? 0;
 
-    double calculatedExtraKg =
-    reqMtr == 0 ? 0 : (reqKg * extraMtr) / reqMtr;
+    double calculatedExtraKg = reqMtr == 0 ? 0 : (reqKg * extraMtr) / reqMtr;
 
     int roundedExtraKg = calculatedExtraKg.round();
 
@@ -228,13 +243,12 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     });
 
     Map<String, dynamic> body = {
-      "ordeR_NO": int.tryParse(widget.data.orderNo.toString()) ?? 0,
-      "boM_NO": widget.data.BomNo.toString(),
+      "ordeR_NO": 0,
+      "boM_NO": selectedBomNo,
       "fabriC_CODE": generatedFabricCode,
 
-      "requireD_MTR": widget.data.mtr.toString(),
-
-      "requireD_KG": widget.data.kg.toString(),
+      "requireD_MTR": reqMtrController.text,
+      "requireD_KG": reqKgController.text,
 
       "extrA_MTR": extraMtrController.text.isEmpty
           ? "0"
@@ -246,12 +260,14 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
 
       "actuaL_REQUIRED_KG": actualKg.round().toString(),
 
-      "customeR_NAME": partyData?.partyName ?? "",
+      "customeR_NAME": selectedPartyName,
+      "pO_NUM": selectedPoNo ?? "",
+      "articlE_NUM": selectedArticle ?? "",
 
-      "pO_NUM": partyData?.poNum ?? "",
-
-      "articlE_NUM": partyData?.articleNum ?? "",
-      "forward_By": "Auto"
+      // "pO_NUM": partyData?.poNum ?? "",
+      //
+      // "articlE_NUM": partyData?.articleNum ?? "",
+      "forward_By": "Manual",
     };
 
     bool success = await NaradanaApiService().forwardPlanningToLoom(
@@ -271,9 +287,7 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
         ),
       );
 
-
       Get.to(() => NewAdminDashboard());
-
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -284,6 +298,54 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     }
   }
 
+  Widget infoDropdown({
+    required String title,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?>? onChanged,
+  }) {
+    final validValue = items.contains(value) ? value : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        DropdownButtonFormField<String>(
+          value: validValue,
+          isExpanded: true,
+
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+
+          items: items
+              .toSet()
+              .map(
+                (e) => DropdownMenuItem(
+              value: e,
+              child: Text(e),
+            ),
+          )
+              .toList(),
+
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
   Widget buildField(String title, Widget child) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,7 +405,7 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     return buildField(
       title,
       DropdownButtonFormField<String>(
-        value: validValue,
+        initialValue: validValue,
         isExpanded: true,
 
         decoration: InputDecoration(
@@ -411,29 +473,6 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     final columns = width < 700 ? 2 : 3;
 
     List<Widget> formFields = [
-      buildField("Width", customTextField(controller: widthController)),
-
-      buildField(
-        "GSM",
-        customTextField(
-          controller: gsmController,
-          keyboardType: TextInputType.number,
-        ),
-      ),
-
-      buildField(
-        "Extra MTR",
-        customTextField(
-          controller: extraMtrController,
-          keyboardType: TextInputType.number,
-        ),
-      ),
-
-      buildField(
-        "Extra KG",
-        customTextField(controller: extraKgController, enabled: false),
-      ),
-
       customDropdown(
         title: "Fabric Type",
         list: fabricTypeList,
@@ -505,6 +544,28 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
           generateFabricCode();
         },
       ),
+      buildField("Width", customTextField(controller: widthController)),
+
+      buildField(
+        "GSM",
+        customTextField(
+          controller: gsmController,
+          keyboardType: TextInputType.number,
+        ),
+      ),
+
+      buildField(
+        "Extra MTR",
+        customTextField(
+          controller: extraMtrController,
+          keyboardType: TextInputType.number,
+        ),
+      ),
+
+      buildField(
+        "Extra KG",
+        customTextField(controller: extraKgController, enabled: false),
+      ),
     ];
 
     return Scaffold(
@@ -520,7 +581,7 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
           children: [
             /// Party Name
             Text(
-              "Party : ${partyData?.partyName ?? "Loading..."}",
+              "Manual Loom Planning",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -545,55 +606,6 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.teal.shade200,
-
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Bom No : ${widget.data.BomNo}",
-                    style: const TextStyle(color: C.textHigh,fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                  const SizedBox(height: 1),
-
-                  Text(
-                    generatedFabricCode.isEmpty
-                        ? "Not Generated"
-                        : generatedFabricCode,
-                    style: const TextStyle(
-                      color: C.textHigh,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  /// Article
-                  Text(
-                    "Article : ${partyData?.articleNum ?? widget.data.articleNum}",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: C.textHigh,fontWeight: FontWeight.bold,),
-                  ),
-
-                  /// PO
-                  Text(
-                    "PO : ${partyData?.poNum ?? widget.data.poNum}",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: C.textHigh,fontWeight: FontWeight.bold,),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
             Card(
               color: C.primaryLight,
               shape: RoundedRectangleBorder(
@@ -628,16 +640,120 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
                       ),
               ),
             ),
+            const SizedBox(height: 10),
+            Card(
+              color: C.primaryLight,
 
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    /// BOM + PO
+                    Row(
+                      children: [
+                        Expanded(
+                          child:infoDropdown(
+                  title: "BOM No",
+                  value: selectedBomNo,
+                            items: inquiryList,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedBomNo = value;
+                              });
+                            },
+
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        Expanded(
+                          child: infoDropdown(
+                            title: "Party Name",
+                            value: selectedPartyName,
+                            items: partyList,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedPartyName = value;
+                              });
+                            },
+
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    /// Party
+                    Row(
+                      children: [
+                        Expanded(
+                          child: buildField(
+                            "PO No",
+                            TextField(
+                              controller: poController,
+                              decoration: InputDecoration(
+                                hintText: "Enter PO No",
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              onChanged: (value) {
+                                selectedPoNo = value;
+                              },
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        Expanded(
+                          child: buildField(
+                            "Article",
+                            TextField(
+                              controller: articleController,
+                              decoration: InputDecoration(
+                                hintText: "Enter Article",
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                              onChanged: (value) {
+                                selectedArticle = value;
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 15),
 
             Row(
               children: [
                 Expanded(
-                  child: summaryCard(
-                    "Req MTR",
-                    widget.data.mtr.toString(),
-                    Icons.straighten,
+                  child: buildField(
+                    "Required MTR",
+                    customTextField(
+                      controller: reqMtrController,
+                      keyboardType: TextInputType.number,
+                    ),
                   ),
                 ),
 
@@ -658,10 +774,12 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
             Row(
               children: [
                 Expanded(
-                  child: summaryCard(
-                    "Req KG",
-                    widget.data.kg.toString(),
-                    Icons.scale,
+                  child: buildField(
+                    "Required KG",
+                    customTextField(
+                      controller: reqKgController,
+                      keyboardType: TextInputType.number,
+                    ),
                   ),
                 ),
 
@@ -676,144 +794,35 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 5),
 
-            const SizedBox(height: 15),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.teal.shade200,
 
-            Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(18),
               ),
-
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    const Text(
-                      "Forward List",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    generatedFabricCode.isEmpty
+                        ? "Not Generated"
+                        : generatedFabricCode,
+                    style: const TextStyle(
+                      color: C.textHigh,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-
-                    const SizedBox(height: 12),
-
-                    if (tableLoading)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    else if (forwardList.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Center(
-                          child: Text(
-                            "No data found",
-                            style: TextStyle(fontSize: 14, color: Colors.grey),
-                          ),
-                        ),
-                      )
-                    else
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-
-                        child: DataTable(
-                          border: TableBorder.all(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-
-                          headingRowColor: WidgetStatePropertyAll(
-                            Colors.blue.shade50,
-                          ),
-
-                          columnSpacing: 25,
-
-                          columns: const [
-                            DataColumn(
-                              label: Text(
-                                "BOM",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            DataColumn(
-                              label: Text(
-                                "Component",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-
-                            DataColumn(
-                              label: Text(
-                                "Fab Code",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-
-                            DataColumn(
-                              label: Text(
-                                "MTR",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-
-                            DataColumn(
-                              label: Text(
-                                "KG",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-
-                          rows: forwardList.map((item) {
-                            final party = partyMap[item.bomNo];
-
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(item.bomNo)),
-
-                                DataCell(Text(item.component)),
-
-                                // DataCell(Text(item.fabricCode)),
-                                DataCell(
-                                  InkWell(
-                                    onTap: () {
-                                      setFabricValuesFromApi(item.fabricCode);
-
-                                      setState(() {
-                                        generatedFabricCode = item.fabricCode;
-                                      });
-                                    },
-                                    child: Text(
-                                      item.fabricCode,
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                DataCell(Text(item.mtr.toString())),
-
-                                DataCell(Text(item.kg.toString())),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
+
+
 
             SizedBox(
               height: 50,
@@ -829,7 +838,7 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
                       },
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: C.primary,
+                  backgroundColor: C.primaryDark,
 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
@@ -862,13 +871,45 @@ class _GenerateCodeScreenState extends State<GenerateCodeScreen> {
     );
   }
 
-  Future<void> _loadData() async {
-    if (unit == null) return;
 
+  Future loadBomList() async {
+    final data = await InStockService().getBomPartyList();
+
+    inquiryList =
+        (data["generatedInquiry"] as List?)
+            ?.map((e) => e.toString().trim())
+            .toSet()
+            .toList() ??
+            [];
+
+    partyList =
+        (data["customerNames"] as List?)
+            ?.map((e) => e.toString().trim())
+            .toSet()
+            .toList() ??
+            [];
+
+    setState(() {});
+  }
+
+  Future<void> _loadData() async {
+    partyList = partyMap.values.map((e) => e.partyName).toSet().toList();
+
+    poList = partyMap.values.map((e) => e.poNum).toSet().toList();
+
+    articleList = partyMap.values.map((e) => e.articleNum).toSet().toList();
+
+    // if (bomList.isNotEmpty) {
+    //   selectedBomNo = bomList.first;
+    //   partyData = partyMap[selectedBomNo];
+    //   selectedPartyName = partyData?.partyName;
+    //   selectedPoNo = partyData?.poNum;
+    //   selectedArticle = partyData?.articleNum;
+    // }
     try {
       forwardList = await NaradanaApiService().getForwardList(
         unit: unit,
-        orderNo: widget.data.orderNo.toString(),
+        orderNo: "0",
       );
 
       debugPrint("========= FORWARD LIST =========");

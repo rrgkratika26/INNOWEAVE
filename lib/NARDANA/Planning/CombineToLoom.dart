@@ -55,14 +55,10 @@ class _CombineToLoomScreenState extends State<CombineToLoomScreen> {
       } else {
         filteredList = loomList.where((item) {
           return item.orderNo.toString().toLowerCase().contains(
-            value.toLowerCase(),
-          ) ||
-              item.articleNum.toLowerCase().contains(
                 value.toLowerCase(),
               ) ||
-              item.BomNo.toString().toLowerCase().contains(
-                value.toLowerCase(),
-              );
+              item.articleNum.toLowerCase().contains(value.toLowerCase()) ||
+              item.BomNo.toString().toLowerCase().contains(value.toLowerCase());
         }).toList();
       }
     });

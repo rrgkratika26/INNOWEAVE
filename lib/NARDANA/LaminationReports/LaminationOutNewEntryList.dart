@@ -13,6 +13,7 @@ import 'package:thermal_printer_plus/thermal_printer.dart';
 import '../../../Color/Colorclass.dart';
 import '../../../Visa/Loom/PrintPreview.dart';
 import '../../../services/Bluetooth_services.dart';
+import '../../AdminDashBoard/DepartmentDashboard.dart';
 import '../../util/widget/printService.dart';
 import 'LamOutScreen.dart';
 import 'NaradanaModelLami.dart';
@@ -118,7 +119,10 @@ class _LamRollPrintScreennaradanState extends State<LamRollPrintScreennaradan> {
             const Text("Label Preview"),
             IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const NewAdminDashboard()),
+                );
               },
               icon: Icon(Icons.close),
             ),

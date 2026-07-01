@@ -680,7 +680,7 @@ class _LoomForwardScreenState extends State<LoomForwardScreen> {
   }
 
   Future<void> _initializeData() async {
-    _unit = await AppSession.getUnit() ?? "UNIT-1";
+    _unit = await AppSession.getUnit() ?? "INNOWEAVE";
 
     _loadOrders(viewType: 'all', unit: _unit,pagesize: pagesize);
   }
@@ -774,13 +774,13 @@ class _LoomForwardScreenState extends State<LoomForwardScreen> {
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
+                        Icons.arrow_back,
                         color: Colors.white,
-                        size: 20,
+                        size: 25,
                       ),
                     ),
 
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 22),
 
                     // Your remaining widgets
                   ],

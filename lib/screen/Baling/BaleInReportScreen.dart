@@ -226,8 +226,9 @@ class _BaleInReportsScreenState extends State<BaleInReportsScreen> {
                       child: Row(
                         children: [
                           Text("${entry.id}. ", style: TextStyle(fontSize: 15)),
+
                           Text(
-                            '${entry.customerName} ${entry.worK_ORDER_NO}',
+                            '${entry.customerName} \n ${entry.worK_ORDER_NO}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

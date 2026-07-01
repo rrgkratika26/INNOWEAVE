@@ -1,6 +1,8 @@
 import 'package:IMS/AdminDashBoard/DepartmentDashboard.dart';
 import 'package:IMS/JBL/JBLDispatch/DispatchDetailScreen.dart';
 import 'package:IMS/JBL/JBL_BailingReport/JBLBailingReportScreen.dart';
+import 'package:IMS/NARDANA/LoomReprts/ManualLoomReports.dart';
+import 'package:IMS/NARDANA/RmdINReports/RmdRollENtryScreen.dart';
 import 'package:IMS/NARDANA/WebbingsReports/WebInReportScreen.dart';
 import 'package:IMS/NARDANA/WebbingsReports/WebStockReprtScreen.dart';
 
@@ -53,6 +55,7 @@ import '../NARDANA/Marketing/InquiryReportScreen.dart';
 import '../NARDANA/Marketing/IssueToQCScreen.dart';
 
 import '../NARDANA/Planning/CombineToLoom.dart';
+import '../NARDANA/Planning/ManualPlanningToLoom.dart';
 import '../NARDANA/Planning/OrderCompositionScreen.dart';
 import '../NARDANA/Planning/OrderPlanningScreen.dart';
 import '../NARDANA/Planning/ToLOomPlanningGenCode.dart';
@@ -60,6 +63,7 @@ import '../NARDANA/RmdINReports/InOutSliderScreen.dart';
 import '../NARDANA/RmdINReports/RMD_Transfer.dart';
 import '../NARDANA/RmdINReports/RmdOutReportScreen.dart';
 import '../NARDANA/RmdINReports/RmdReportsIn.dart';
+import '../NARDANA/RmdINReports/RmdSavedListForPrint.dart';
 import '../NARDANA/StockLedger/Web_LedgerStock.dart';
 import '../NARDANA/WebbingsReports/WebStockSliderScreen.dart';
 import '../NARDANA/WebbingsReports/WebbingSliderReports.dart';
@@ -294,8 +298,11 @@ class AppRoutes {
   static const String loomIn = '/loom-in';
   static const String loomReports = '/loomReports';
   static const String loomSaveList = '/loomSaveList';
+  static const String manualPlanningReports ='/manualPlanningreports';
   static const String rmdIn = '/rmd-in';
   static const String rmdOut = '/rmd-out';
+  static const String rollEntry= '/rollEntry';
+  static const String rmdRollSavedList ='/rmdRollSavedList';
   static const String rmdtransfer = '/rmdTransfer';
   static const String rmdNardanaStock = '/rmdNardanaStock';
   static const String lamination = '/lamination';
@@ -347,7 +354,7 @@ class AppRoutes {
   static const String lamReportScreen = '/lamReportScreen';
   static const String cutGroupStock = '/cutGroupStock';
   static const String stockLedger = '/stockLedger';
-  static const String InquiryPannel = '/InquireyPannel';
+  static const String InquiryMarketingReport = '/InquireyPannel';
   static const String bomReport = '/bomReport';
   static const String bomList = '/bomList';
   static const String Issue_to_QC = '/Issue_to_QC';
@@ -356,6 +363,7 @@ class AppRoutes {
   static const String inquiryReport = '/inquiryreport';
   static const String orderComposition = '/orderComposition';
   static const String toLoom = '/toLoom';
+  static const String manualToLoom = '/manualToLoom';
   static const String laminationOutStock = '/laminationOutStock';
   static const String laminationVisaReports = '/laminationReports';
   static const String lamNaradanaInReport = '/lamNaradanaInReport';
@@ -375,6 +383,7 @@ class AppRoutes {
     ),
 
     GetPage(name: loomReports, page: () => const LoomReportScreen()),
+    GetPage(name: manualPlanningReports, page: () => const ManualPlanningReports()),
 
     GetPage(name: loomSaveList, page: () => const SavedListScreen()),
 
@@ -389,6 +398,8 @@ class AppRoutes {
     ),
 
     GetPage(name: rmdtransfer, page: () => const RmdTransferScreen()),
+    GetPage(name: rollEntry, page: () => const RmdRollENtryScreen()),
+    GetPage(name: rmdRollSavedList, page: () => const RmdRollSavedList()),
 
     GetPage(name: rmdNardanaStock, page: () => const RmdStockReportScreen()),
 
@@ -491,7 +502,7 @@ class AppRoutes {
     GetPage(name: stockLedger, page: () => const StockLedgerScreen()),
 
     GetPage(
-      name: InquiryPannel,
+      name: InquiryMarketingReport,
       page: () => const InquiryMarketingReportScreen(),
     ),
 
@@ -510,6 +521,8 @@ class AppRoutes {
     GetPage(name: orderComposition, page: () => const OrderCompositionScreen()),
 
     GetPage(name: toLoom, page: () => const CombineToLoomScreen()),
+
+    GetPage(name: manualToLoom, page: () =>  ManualToLoomScreen()),
 
     GetPage(name: laminationOutStock, page: () => const RollListScreen()),
 

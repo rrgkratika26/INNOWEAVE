@@ -1,3 +1,5 @@
+import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
+import 'package:IMS/util/sharedpreference/shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -113,7 +115,7 @@ class _BomReportScreenState extends State<BomReportScreen> {
       });
 
       final result = await NaradanaApiService().fetchBomInquiryReport(
-        unitName: "NARDANA",
+        unitName: AppGlobals.unit,
 
         // unitName: "SILVASSA",
         pageNumber: 1,

@@ -58,52 +58,92 @@ class _DeptItem {
 // ─────────────────────────────────────────────
 //  MENU ACTION HELPER
 // ─────────────────────────────────────────────
-// List<MenuAction> getActionsForMenu(String dept) {
-//   switch (dept.toUpperCase()) {
-//     case 'INQUIRY':
-//       return [MenuAction.Inquirey_Report];
-//     case 'PLANNING':
-//       return [MenuAction.Order_Planning, MenuAction.Order_Composition, MenuAction.To_Loom];
-//     case 'LOOM':
-//       return [MenuAction.IN, MenuAction.In_Report, MenuAction.report];
-//     case 'JBL LOOM':
-//       return [MenuAction.IN, MenuAction.report];
-//     case 'RMD':
-//       return [MenuAction.IN, MenuAction.OUT, MenuAction.report, MenuAction.stock];
-//     case 'JBL RMD':
-//       return [MenuAction.IN, MenuAction.OUT, MenuAction.Stock_Report];
-//     case 'LAMINATION':
-//       return [MenuAction.IN, MenuAction.OUT, MenuAction.report];
-//     case 'JBL LAMINATION':
-//       return [MenuAction.IN];
-//     case 'CUTTING':
-//       return [MenuAction.IN, MenuAction.OUT, MenuAction.In_Report, MenuAction.report, MenuAction.stock, MenuAction.Approval, MenuAction.Pcs_Issue];
-//     case 'JBL CUTTING':
-//       return [MenuAction.IN];
-//     case 'BAG':
-//       return [MenuAction.entry, MenuAction.report];
-//     case 'JBL BAG':
-//       return [MenuAction.entry];
-//     case 'BALING':
-//       return [MenuAction.entry, MenuAction.report, MenuAction.dispatch, MenuAction.stock];
-//     case 'JBL BALING':
-//       return [MenuAction.entry];
-//     case 'WEBBING':
-//       return [MenuAction.IN, MenuAction.OUT, MenuAction.report];
-//     case 'JBL WEBBING':
-//       return [MenuAction.IN];
-//     case 'LEDGER':
-//       return [MenuAction.Webbing_Ledger];
-//     case 'TAPELINE':
-//       return [MenuAction.IN];
-//     case 'MARKETING':
-//       return [MenuAction.Inquirey_Report];
-//     case 'JBL DISPATCH':
-//       return [MenuAction.entry];
-//     default:
-//       return [MenuAction.IN];
-//   }
-// }
+List<MenuAction> getActionsForMenu(String dept) {
+  switch (dept.toUpperCase()) {
+    // case 'INQUIRY':
+    //   return [MenuAction.Inquirey_Report,MenuAction.Bom_Report,MenuAction.bomList,MenuAction.Issue_to_QC];
+    case 'PLANNING':
+      return [
+        MenuAction.Order_Planning,
+        MenuAction.Order_Composition,
+        MenuAction.combine_To_Loom,
+        MenuAction.manual_Planning,
+      ];
+    case 'LOOM':
+      return [
+        MenuAction.IN,
+        MenuAction.saved_List,
+        MenuAction.In_Report,
+        MenuAction.report,
+      ];
+    case 'JBL LOOM':
+      return [MenuAction.IN, MenuAction.report];
+    case 'RMD':
+      return [
+        MenuAction.IN,
+        MenuAction.OUT,
+
+        MenuAction.In_Report,
+        MenuAction.Out_Report,
+        MenuAction.Roll_Entry,
+        MenuAction.saved_List,
+
+
+        MenuAction.stock,
+        MenuAction.transfer,
+      ];
+    case 'JBL RMD':
+      return [MenuAction.IN, MenuAction.OUT, MenuAction.Stock_Report];
+    case 'LAMINATION':
+      return [
+        MenuAction.IN,
+        MenuAction.OUT,
+        MenuAction.In_Report,
+        MenuAction.Out_Report,
+      ];
+    case 'JBL LAMINATION':
+      return [MenuAction.IN];
+    case 'CUTTING':
+      return [
+        MenuAction.IN,
+        MenuAction.OUT,
+        MenuAction.In_Report,
+        MenuAction.report,
+        MenuAction.stock,
+        MenuAction.Approval,
+        MenuAction.Pcs_Issue,
+      ];
+    case 'JBL CUTTING':
+      return [MenuAction.IN];
+    case 'BAG':
+      return [MenuAction.entry, MenuAction.report];
+    case 'JBL BAG':
+      return [MenuAction.entry];
+    case 'BALING':
+      return [
+        MenuAction.entry,
+        MenuAction.report,
+        MenuAction.dispatch,
+        MenuAction.stock,
+      ];
+    case 'JBL BALING':
+      return [MenuAction.entry];
+    case 'WEBBING':
+      return [MenuAction.IN, MenuAction.OUT, MenuAction.report];
+    case 'JBL WEBBING':
+      return [MenuAction.IN];
+    case 'LEDGER':
+      return [MenuAction.Webbing_Ledger];
+    case 'TAPELINE':
+      return [MenuAction.IN];
+    case 'MARKETING':
+      return [MenuAction.Inquirey_Report,MenuAction.Bom_Report,MenuAction.Issue_to_QC,MenuAction.Bom_List_remain];
+    case 'JBL DISPATCH':
+      return [MenuAction.entry];
+    default:
+      return [MenuAction.IN];
+  }
+}
 
 // ─────────────────────────────────────────────
 //  MAIN SCREEN
@@ -153,7 +193,6 @@ class _AdminDashboard extends StatelessWidget {
 
   static const _allItems = [
     _DeptItem(title: 'MARKETING', icon: Icons.bar_chart),
-
     _DeptItem(title: 'PLANNING', icon: Icons.next_plan_rounded),
     _DeptItem(title: 'LOOM', icon: Icons.looks),
     _DeptItem(title: 'RMD', icon: Icons.inventory),
@@ -162,7 +201,7 @@ class _AdminDashboard extends StatelessWidget {
     _DeptItem(title: 'BAG', icon: Icons.shopping_bag),
     _DeptItem(title: 'BALING', icon: Icons.waves),
     _DeptItem(title: 'WEBBING', icon: Icons.web),
-    // _DeptItem(title: 'LEDGER', icon: Icons.menu_book),
+    _DeptItem(title: 'LEDGER', icon: Icons.menu_book),
     _DeptItem(title: 'TAPELINE', icon: Icons.dashboard),
     // _DeptItem(title: 'INQUIRY', icon: Icons.question_answer),
   ];
@@ -200,55 +239,6 @@ class _AdminDashboard extends StatelessWidget {
                       ),
                     ),
                   ),
-
-                  // Logout Button
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(Icons.logout, color: Colors.white),
-                        label: const Text(
-                          "Logout",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onPressed: () async {
-                          final confirm = await Get.dialog<bool>(
-                            AlertDialog(
-                              title: const Text("Logout"),
-                              content: const Text(
-                                "Are you sure you want to logout?",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Get.back(result: false),
-                                  child: const Text("Cancel"),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Get.back(result: true),
-                                  child: const Text("Logout"),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          if (confirm == true) {
-                            ctrl.logout();
-                          }
-                        },
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -275,7 +265,7 @@ class _DeptDashboard extends StatelessWidget {
     final crossCount = isMobile ? 2 : (mq.size.width < 1000 ? 3 : 4);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6FB),
+      backgroundColor: C.bg,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +274,7 @@ class _DeptDashboard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 20 : 32,
+                horizontal: isMobile ? 8 : 32,
                 vertical: isMobile ? 18 : 24,
               ),
               decoration: const BoxDecoration(
@@ -296,18 +286,15 @@ class _DeptDashboard extends StatelessWidget {
               child: Row(
                 children: [
                   // Avatar
-                  CircleAvatar(
-                    radius: isMobile ? 22 : 28,
-                    backgroundColor: Colors.white.withOpacity(.2),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Get.to(() => ProfileScreen());
-                      },
-                      icon: Icon(Icons.person),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: C.bg),
+                    onPressed: () {
+                      // Navigator.pop(context);
+                      // Ya agar GetX use kar rahe hain:
+                      Get.back();
+                    },
                   ),
-                  SizedBox(width: isMobile ? 14 : 18),
+                  SizedBox(width: isMobile ? 10 : 18),
                   // User info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -324,13 +311,13 @@ class _DeptDashboard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 40),
                       Obx(
                         () => Text(
                           ctrl.unit.value,
                           style: TextStyle(
                             color: C.textBody,
-                            fontSize: isMobile ? 16 : 19,
+                            fontSize: isMobile ? 20 : 25,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -421,6 +408,7 @@ class _Header extends StatelessWidget {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Builder(
             builder: (ctx) => IconButton(
@@ -444,7 +432,7 @@ class _Header extends StatelessWidget {
                     fontSize: isMobile ? 11 : 13,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
                 Obx(
                   () => Text(
                     ctrl.user.value,
@@ -492,6 +480,44 @@ class _Header extends StatelessWidget {
                       ],
                     ),
                   ),
+          ),
+          // Logout Button
+          Align(
+            alignment: Alignment.center,
+            child: IconButton(
+              iconSize: 25,
+              color: C.danger,
+              icon: const Icon(Icons.logout_rounded),
+              tooltip: "Logout",
+              onPressed: () async {
+                final confirm = await Get.dialog(
+                  AlertDialog(
+                    title: const Text("Logout"),
+                    content: const Text("Are you sure you want to logout?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(result: false),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: C.textHigh),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Get.back(result: true),
+                        child: const Text(
+                          "Logout",
+                          style: TextStyle(color: C.danger),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  ctrl.logout();
+                }
+              },
+            ),
           ),
         ],
       ),
@@ -617,6 +643,8 @@ class _ActionCard extends StatelessWidget {
         return Icons.reorder_rounded;
       case MenuAction.combine_To_Loom:
         return Icons.arrow_forward_rounded;
+      case MenuAction.manual_Planning:
+        return Icons.queue_play_next;
       case MenuAction.Webbing_Ledger:
         return Icons.menu_book_rounded;
       default:
@@ -717,72 +745,98 @@ class _AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             // Header
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [C.appBar1, C.appBar4]),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, color: C.textHead, size: 30),
+            Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
                   ),
-                  const SizedBox(height: 14),
-                  Obx(
-                    () => Text(
-                      ctrl.user.value,
-                      style: const TextStyle(
-                        color: C.textHead,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [C.appBar1, C.primaryDark],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Obx(
-                    () => Text(
-                      ctrl.userType.value,
-                      style: const TextStyle(color: C.textHead, fontSize: 13),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Obx(
-                    () => Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: C.textHead),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Profile Row
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Icon(
-                            Icons.factory,
-                            color: C.textHead,
-                            size: 14,
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.white24,
+                            child: IconButton(
+                              onPressed: () {
+                                Get.to(() => ProfileScreen());
+                              },
+                              icon: const Icon(
+                                Icons.person,
+                                color: C.textHead,
+                                size: 30,
+                              ),
+                            ),
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            ctrl.unit.value,
-                            style: const TextStyle(
-                              color: C.textHead,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
+                          const SizedBox(width: 14),
+
+                          Expanded(
+                            child: Obx(
+                              () => Text(
+                                ctrl.user.value,
+                                style: const TextStyle(
+                                  color: C.textHead,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
+
+                      const SizedBox(height: 16),
+
+                      // Unit Row
+                      Obx(
+                        () => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white30),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.factory,
+                                color: C.textHead,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  ctrl.unit.value,
+                                  style: const TextStyle(
+                                    color: C.textHead,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Dept list
@@ -928,9 +982,18 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
   }
 
   switch (dept.toUpperCase()) {
-    case 'INQUIRY':
+    case 'MARKETING':
       if (action == MenuAction.Inquirey_Report)
-        Get.toNamed(AppRoutes.inquiryReport);
+        Get.toNamed(AppRoutes.InquiryMarketingReport);
+      if (action == MenuAction.Bom_Report)
+        Get.toNamed(AppRoutes.bomReport);
+
+      if (action == MenuAction.Bom_List_remain) {
+        Get.toNamed(AppRoutes.bomList);
+      }
+      if (action == MenuAction.Issue_to_QC)
+        Get.toNamed(AppRoutes.Issue_to_QC);
+
       break;
     case 'PLANNING':
       if (action == MenuAction.Order_Planning)
@@ -939,6 +1002,8 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.orderComposition);
       else if (action == MenuAction.combine_To_Loom)
         Get.toNamed(AppRoutes.toLoom);
+      else if (action == MenuAction.manual_Planning)
+        Get.toNamed(AppRoutes.manualToLoom);
       break;
     case 'LOOM':
       if (action == MenuAction.IN)
@@ -947,18 +1012,27 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.loomSaveList);
       else if (action == MenuAction.Out_Report)
         Get.toNamed(AppRoutes.loomReports);
+      else if (action == MenuAction.Manual_PLAN_report)
+        Get.toNamed(AppRoutes.manualPlanningReports);
       break;
     case 'RMD':
       if (action == MenuAction.IN)
         Get.toNamed(AppRoutes.rmdIn);
       else if (action == MenuAction.OUT)
         Get.toNamed(AppRoutes.rmdOut);
+
+      else if (action == MenuAction.Roll_Entry)
+        Get.toNamed(AppRoutes.rollEntry);
+      else if (action == MenuAction.saved_List)
+        Get.toNamed(AppRoutes.rmdRollSavedList);
       else if (action == MenuAction.In_Report)
         Get.toNamed(AppRoutes.rmdNardanaInReports);
       else if (action == MenuAction.Out_Report)
         Get.toNamed(AppRoutes.rmdNardanaOutReports);
       else if (action == MenuAction.stock)
         Get.toNamed(AppRoutes.rmdNardanaStock);
+      else if (action == MenuAction.transfer)
+        Get.toNamed(AppRoutes.rmdtransfer);
       break;
     case 'LAMINATION':
       if (action == MenuAction.IN)
@@ -1013,32 +1087,31 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.webbingIn);
       else if (action == MenuAction.OUT)
         Get.toNamed(AppRoutes.webbingOut);
-      else if (action == MenuAction.report)
-        Get.toNamed(AppRoutes.webbNardanaReport);
-      else if (action == MenuAction.stock)
-        Get.toNamed(AppRoutes.webStockSlider);
+      // else if (action == MenuAction.report)
+      //   Get.toNamed(AppRoutes.webbNardanaReport);
+      // else if (action == MenuAction.stock)
+      //   Get.toNamed(AppRoutes.webStockSlider);
       break;
     case 'LEDGER':
       if (action == MenuAction.Webbing_Ledger)
         Get.toNamed(AppRoutes.stockLedger);
       break;
     case 'TAPELINE':
-      if (action == MenuAction.IN)
-        Get.toNamed(AppRoutes.tapelineIn);
-      else if (action == MenuAction.recent_entries)
-        Get.toNamed(AppRoutes.tapelineRecentEntries);
-      else if (action == MenuAction.OUT)
-        Get.toNamed(AppRoutes.tapelineOut);
+      if (action == MenuAction.IN) Get.toNamed(AppRoutes.tapelineIn);
+      // else if (action == MenuAction.recent_entries)
+      //   Get.toNamed(AppRoutes.tapelineRecentEntries);
+      // else if (action == MenuAction.OUT)
+      //   Get.toNamed(AppRoutes.tapelineOut);
       break;
-    case 'MARKETING':
-      if (action == MenuAction.Inquirey_Report)
-        Get.toNamed(AppRoutes.InquiryPannel);
-      else if (action == MenuAction.Issue_to_QC)
-        Get.toNamed(AppRoutes.Issue_to_QC);
-      else if (action == MenuAction.Bom_Report)
-        Get.toNamed(AppRoutes.bomReport);
-      if (action == MenuAction.Bom_List_remain) Get.toNamed(AppRoutes.bomList);
-
-      break;
+    // case 'MARKETING':
+    //   if (action == MenuAction.Inquirey_Report)
+    //     Get.toNamed(AppRoutes.InquiryMarketingReport);
+    //   else if (action == MenuAction.Issue_to_QC)
+    //     Get.toNamed(AppRoutes.Issue_to_QC);
+    //   else if (action == MenuAction.Bom_Report)
+    //     Get.toNamed(AppRoutes.bomReport);
+    //   if (action == MenuAction.Bom_List_remain) Get.toNamed(AppRoutes.bomList);
+    //
+    //   break;
   }
 }

@@ -287,13 +287,13 @@ class _IssueToQualityScreenState extends State<IssueToQualityScreen> {
         children: [
           head("✓", colCheck),
           head("WO", colWo),
-          head("CUSTOMER", colCustomer),
-          head("BAG REF", colBagRef),
-          head("BAG TYPE", colBagType),
-          head("INQUIRY", colInquiry),
-          head("UNIT", colUnit),
-          head("PO DATE", colPoDate),
-          head("DISPATCH", colDispatch),
+          head("WO Sr.", colCustomer),
+          head("Customer Name", colBagRef),
+          head("BAG Ref.", colBagType),
+          head("INQUIRY No.", colInquiry),
+          head("Bag type", colUnit),
+          // head("PO DATE", colPoDate),
+          // head("DISPATCH", colDispatch),
         ],
       ),
     );
@@ -373,25 +373,25 @@ class _IssueToQualityScreenState extends State<IssueToQualityScreen> {
           ),
 
           cell(item["wO_NO"], colWo),
-          cell(item["cusT_ID"], colCustomer),
-          cell(item["baG_REF"], colBagRef),
-          cell(item["baG_TYPE"], colBagType),
+          cell(item["wO_NO_SERIES"], colCustomer),
+          cell(item["customeR_NAME"], colBagRef),
+          cell(item["baG_REF"], colBagType),
           cell(item["inquirY_NO"], colInquiry),
-          cell(item["unit"], colUnit),
+          cell(item["baG_TYPE"], colUnit),
 
-          cell(
-            item["pO_DATE"]
-                ?.toString()
-                .split("T")[0],
-            colPoDate,
-          ),
-
-          cell(
-            item["requesT_DISPATCH_DATE"]
-                ?.toString()
-                .split("T")[0],
-            colDispatch,
-          ),
+          // cell(
+          //   item["pO_DATE"]
+          //       ?.toString()
+          //       .split("T")[0],
+          //   colPoDate,
+          // ),
+          //
+          // cell(
+          //   item["requesT_DISPATCH_DATE"]
+          //       ?.toString()
+          //       .split("T")[0],
+          //   colDispatch,
+          // ),
         ],
       ),
     );

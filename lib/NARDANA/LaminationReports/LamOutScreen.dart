@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../AdminDashBoard/DepartmentDashboard.dart';
 import '../../Color/Colorclass.dart';
 import '../../ScannedItem/Lamination/lAMINATION_OUTsTOCK/laminationOut_model.dart';
 import '../../services/NardanaApis/NardanaApi.dart';
@@ -111,7 +112,10 @@ class _LamOutScreenState extends State<LamOutScreen> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(color: C.appBar1),
         ),
-        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(Icons.arrow_back)),
+        leading: IconButton(onPressed: () =>  Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const NewAdminDashboard()),
+        ), icon: Icon(Icons.arrow_back)),
         // C.primary,
         iconTheme: IconThemeData(color: C.bg),
       ),

@@ -371,7 +371,7 @@ class _OrderCompositionScreenState extends State<OrderCompositionScreen> {
 
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: C.primary,
+                  backgroundColor: C.primaryDark,
 
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

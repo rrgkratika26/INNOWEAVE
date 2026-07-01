@@ -50,15 +50,7 @@ class _LaminationScreenState extends State<LaminationScreen> {
         iconTheme: IconThemeData(color: C.bg),
         title: Row(
           children: [
-            Text(
-              unitTitle.isNotEmpty ? unitTitle : 'Unit Name',
-              style: TextStyle(
-                color: C.primaryDark,
-                fontSize: isTablet ? 20 : 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(width: 5),
+
             Text(
               'Lamination IN',
               style: TextStyle(
