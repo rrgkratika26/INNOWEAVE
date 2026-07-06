@@ -37,6 +37,7 @@ import '../auth_exception.dart';
 
 class NaradanaApiService {
   // static const String _baseUrl = 'http://190.92.175.47:80/api/api';
+  // static const String _baseUrl ='http://190.92.175.47/Qualipack/api';
   static const String _baseUrl = 'http://192.168.29.125:7165/api';
 
   // static const String _baseUrl = 'http://190.92.175.47/ShriShakti/api';

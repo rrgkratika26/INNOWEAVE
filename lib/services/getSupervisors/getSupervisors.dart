@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:IMS/ScannedItem/TAPELINE/modelClass/tapeListFIBC.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -20,6 +21,8 @@ import '../../ScannedItem/Lamination/lAMINATION_OUTsTOCK/laminationOut_model.dar
 import '../../ScannedItem/Lamination/lAMINATION_OUTsTOCK/modelClass/roll_wiseModle.dart';
 import '../../ScannedItem/Loom/LoomModelClass.dart';
 import '../../ScannedItem/Loom/LoomSuperiosrData.dart';
+import '../../ScannedItem/TAPELINE/modelClass/InReportmodel.dart';
+import '../../ScannedItem/TAPELINE/modelClass/TapeOutModel.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/ReportModelClass.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/WebbInReportModelClass.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/WebbingDropdownModel.dart';
@@ -37,6 +40,7 @@ import '../auth_exception.dart';
 
 class InStockService {
   static const String baseUrl = 'http://192.168.29.125:7165/api';
+  // static const String baseUrl ='http://190.92.175.47/Qualipack/api';
   // static const String baseUrl = 'http://190.92.175.47:80/api/api';
   // static const String baseUrl = 'http://190.92.175.47/ShriShakti/api';
 
@@ -1892,7 +1896,7 @@ class InStockService {
   ) async {
     final response = await http.post(
       Uri.parse("$baseUrl/Tapeline/save"),
-      headers: await InStockService.authHeaders(), // ✅ correct
+      headers: await authHeaders(), // ✅ correct
       body: jsonEncode(body),
     );
 
@@ -2025,6 +2029,10 @@ class InStockService {
       Uri.parse("$baseUrl/Tapeline/outstock_issueqty?id=$code"),
       headers: await authHeaders(),
     );
+    print("====== FINAL FETCH BARCODE ======");
+
+    print("STATUS: ${response.statusCode}");
+    print("RESPONSE: ${response.body}");
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -2061,8 +2069,7 @@ class InStockService {
           "id": item["id"],
           "balanceQty": item["balanceQty"],
           "issueQty": item["issueQty"],
-          "existingIssueQty":
-              double.tryParse(item["existingIssueQty"].toString()) ?? 0,
+          "existingIssueQty":item["existingIssueQty"],
           "statuS_ISSUE": item["statuS_ISSUE"] ?? "True",
         },
       ],
@@ -2070,10 +2077,7 @@ class InStockService {
 
     final response = await http.post(
       url,
-      headers: {
-        ...(await authHeaders()),
-        "Content-Type": "application/json", // ✅ IMPORTANT
-      },
+      headers:await authHeaders() ,
       body: jsonEncode(body),
     );
 
@@ -2313,7 +2317,7 @@ class InStockService {
     );
 
     if (response.statusCode == 200) {
-      print("👉 Loom List Response: ${response}");
+
       print("👉 Loom List Response: ${response.body}");
 
       return jsonDecode(response.body);
@@ -2403,13 +2407,15 @@ class InStockService {
     final formatter = DateFormat("yyyy-MM-dd");
 
     final url = Uri.parse(
-        "$baseUrl/api/LoomForward/manualplanning"
+        "$baseUrl/LoomForward/manualplanning"
             "?fromDate=${formatter.format(from!)}"
             "&toDate=${formatter.format(to!)}"
             "&unit=$unit");
+    print("URL: $url");
 
-    final response = await http.get(url);
-
+    final response = await http.get(url,headers: await authHeaders());
+    print("STATUS: ${response.statusCode}");
+    print("RESPONSE BODY: ${response.body}");
     if (response.statusCode == 200) {
 
       final jsonData = jsonDecode(response.body);
@@ -2422,5 +2428,100 @@ class InStockService {
     throw Exception("Failed");
   }
 
+  Future<List<String>> fetchPartyNames() async {
+    final response = await http.get(
+      Uri.parse("$baseUrl/Tapeline/partname"),headers: await authHeaders()
+    );
 
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      return data
+          .map<String>((e) => e["customeR_NAME"].toString().trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    } else {
+      throw Exception("Unable to load Party List");
+    }
+  }
+
+  Future<List<TapeFIBCModel>> fetchFibc(String customerName) async {
+    final response = await http.get(
+      Uri.parse(
+        "$baseUrl/Tapeline/required-fibc?customerName=$customerName",
+      ),headers: await authHeaders()
+    );
+    print("STATUS TAPELINE LIST////: ${response.statusCode}");
+    print("RESPONSE BODY: ${response.body}");
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      return data.map((e) => TapeFIBCModel.fromJson(e)).toList();
+    } else {
+      throw Exception("Unable to load data");
+    }
+  }
+
+
+
+  Future<List<TapelineInReportModel>> fetchTapelineInReport({
+    DateTime? from,
+    DateTime? to,
+  }) async {
+
+    final formatter = DateFormat("yyyy-MM-dd");
+
+    final url = Uri.parse(
+      "$baseUrl/Tapeline/tapeline-report"
+          "?fromDate=${formatter.format(from!)}"
+          "&toDate=${formatter.format(to!)}",
+
+    );
+
+    print(url);
+
+    final response = await http.get(url,headers: await authHeaders());
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      return data
+          .map((e) => TapelineInReportModel.fromJson(e))
+          .toList();
+    } else {
+      throw Exception("Failed to load Tapeline Report");
+    }
+  }
+
+
+
+
+  Future<List<TapelineOutReportModel>> fetchTapelineOutReport({
+    DateTime? from,
+    DateTime? to,
+  }) async {
+
+    final formatter = DateFormat("yyyy-MM-dd");
+
+    final url = Uri.parse(
+      "$baseUrl/Tapeline/tapeline-out-report"
+          "?fromDate=${formatter.format(from!)}"
+          "&toDate=${formatter.format(to!)}",
+
+    );
+
+    print(url);
+
+    final response = await http.get(url,headers: await authHeaders());
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      return data
+          .map((e) => TapelineOutReportModel.fromJson(e))
+          .toList();
+    } else {
+      throw Exception("Failed to load Tapeline Report");
+    }
+  }
 }

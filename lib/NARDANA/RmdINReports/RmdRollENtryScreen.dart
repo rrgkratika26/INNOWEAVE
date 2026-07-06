@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:IMS/JBL/JBL_Loom/modelClass/FIBCmodel.dart';
 import 'package:IMS/NARDANA/RmdINReports/RmdSavedListForPrint.dart';
+import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
 import 'package:IMS/services/getSupervisors/getSupervisors.dart';
 import 'package:IMS/util/sharedpreference/shared_preference.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class _RmdRollENtryScreenState extends State<RmdRollENtryScreen> {
   int? cId;
   String? barcode;
 
-  String? unit = "INNOWEAVE";
+  String? unit = AppGlobals.unit;
   String? selectedProductionType;
   String? selectedRollFrom;
 
@@ -454,7 +455,7 @@ class _RmdRollENtryScreenState extends State<RmdRollENtryScreen> {
       // "partyName": selectedParty ?? "",
       "partyName": partyController.text.trim(),
       "supervisor": supervisorController.text.trim(),
-      "location": locationController.text.trim(),
+      // "location": locationController.text.trim(),
       "purchaseOrder": poController.text.trim(),
       "articleNo": articleController.text.trim(),
       "bomNo": bomController.text.trim(),
@@ -462,7 +463,7 @@ class _RmdRollENtryScreenState extends State<RmdRollENtryScreen> {
 
       "avgWeight": avgWeightMtrCtrl.text,
       "productionType": selectedProductionType ?? "",
-      // "location": selectedLocation ?? "",
+      "location": selectedLocation ?? locationController.text.trim(),
       // "bomNo": selectedBom ?? "",
     };
 

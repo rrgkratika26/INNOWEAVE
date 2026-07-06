@@ -8,24 +8,6 @@ import '../../AdminDashBoard/ListMenuItems/dashBoardNewUi.dart';
 import '../../Color/Colorclass.dart';
 import 'RecentEntryScreen.dart';
 
-class TapeLineApp extends StatelessWidget {
-  const TapeLineApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      // title: 'Tape Line Entry',
-      // debugShowCheckedModeBanner: false,
-      // theme: ThemeData(
-      //   useMaterial3: true,
-      //   colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A73E8)),
-      //   fontFamily: 'SF Pro Display',
-      // ),
-      home: const TapeLineEntryScreen(),
-    );
-  }
-}
-
 // ─── Data Model ──────────────────────────────────────────────────────────────
 
 class EntryRecord {
@@ -49,7 +31,24 @@ class EntryRecord {
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 
 class TapeLineEntryScreen extends StatefulWidget {
-  const TapeLineEntryScreen({super.key});
+  final String inquiryNo;
+  final String customerName;
+  final String articleNo;
+  final String bomNumber;
+  final String extra13;
+  final double totalMtr;
+  final double totalKg;
+
+  const TapeLineEntryScreen({
+    super.key,
+    required this.inquiryNo,
+    required this.customerName,
+    required this.articleNo,
+    required this.bomNumber,
+    required this.extra13,
+    required this.totalMtr,
+    required this.totalKg,
+  });
 
   @override
   State<TapeLineEntryScreen> createState() => _TapeLineEntryScreenState();
@@ -82,31 +81,21 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
   String? _selectedRecipe;
   String? _selectedPO;
   String? _selectedArticle;
-  String _selectedOperator = 'ADARSH';
+  String _selectedOperator = '';
   String _selectedPlant = 'TAPE PLANT-1';
 
   String _selectedShift = 'A';
 
   final InStockService api = InStockService();
 
-  final List<EntryRecord> _records = const [
-    EntryRecord(
-      id: 1386,
-      operator: 'RAMBABU',
-      party: 'Palmetto',
-      recipe: 'LEMON YLW',
-      gross: 580,
-    ),
-  ];
-
   String _generateBatchNumber() {
-    final party = _selectedParty ?? '';
-    final po = _selectedPO ?? '';
+    final party = widget.customerName.trim();
+    final po = widget.articleNo.trim(); // PO Number
+
     final shift = _selectedShift.isNotEmpty ? _selectedShift : '';
 
     final now = DateTime.now();
-    final time = "${now.hour}:${now.minute.toString().padLeft(2, '0')}:00";
-    // final date = now.day.toString().padLeft(2, '0');
+
     final date = now.day.toString();
     final month = now.month.toString().padLeft(2, '0');
 
@@ -132,6 +121,9 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
   void initState() {
     super.initState();
     _loadDropdownData();
+    print("Party Name : ${widget.customerName}");
+    print("BOM No      : ${widget.bomNumber}");
+    print("Article No  : ${widget.articleNo}");
   }
 
   @override
@@ -144,7 +136,6 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
     _netController.dispose();
     _batchController.dispose();
     _generatedCodeController.dispose(); // ✅ ADD THIS
-
 
     _remarkController.dispose();
     super.dispose();
@@ -216,10 +207,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const NewAdminDashboard()),
-            );
+            Navigator.pop(context);
           },
         ),
         title: Row(
@@ -227,7 +215,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
             const Text(
               'Tape Line Entry',
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: C.bg,
               ),
@@ -247,7 +235,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                 ),
                 child: Text(
                   _getCurrentDate(),
-                  style: const TextStyle(fontSize: 11, color: C.primary),
+                  style: const TextStyle(fontSize: 13, color: C.primaryDark),
                 ),
               ),
             ),
@@ -260,7 +248,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
         iconTheme: IconThemeData(color: C.bg),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator(color: C.appBar3,))
+          ? const Center(child: CircularProgressIndicator(color: C.appBar3))
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Column(
@@ -280,18 +268,19 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1A73E8),
+                        color: C.primaryDark,
                       ),
                     ),
                   ),
-                  // const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+
                   const SizedBox(height: 12),
                   _buildOperatorCard(),
                   const SizedBox(height: 12),
                   _buildProductionCard(),
                   const SizedBox(height: 16),
-                  _buildGenerateButton(),
-                  const SizedBox(height: 10),
+                  // _buildGenerateButton(),
+                  // const SizedBox(height: 10),
                   _buildActionRow(),
                   const SizedBox(height: 20),
                   _buildRecentEntries(),
@@ -320,7 +309,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: Color(0xFFBDBDBD),
+              color: C.textHead,
               letterSpacing: 0.7,
             ),
           ),
@@ -343,14 +332,14 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E)),
+          style: const TextStyle(fontSize: 13, color: C.primaryDark),
         ),
-        const SizedBox(height: 4),
+
         DropdownButtonFormField<String>(
           initialValue: value != null && items.contains(value) ? value : null,
           isExpanded: true,
           decoration: const InputDecoration(),
-          style: const TextStyle(fontSize: 13, color: Color(0xFF212121)),
+          style: const TextStyle(fontSize: 15, color: C.textHigh),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 18),
           items: items
               .map((e) => DropdownMenuItem(value: e, child: Text(e)))
@@ -372,13 +361,13 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 11, color: Color(0xFF9E9E9E)),
+          style: const TextStyle(fontSize: 13, color: C.primaryDark),
         ),
-        const SizedBox(height: 4),
+
         TextField(
           controller: controller,
           keyboardType: keyboardType,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(hintText: placeholder),
           onChanged:
               (label == 'Gross Weight (kg)' || label == 'Tare Weight (kg)')
@@ -399,9 +388,25 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
           Row(
             children: [
               Expanded(
-                // child: _dropdown('Operator', _selectedOperator,
-                //     ['ADARSH', 'RAMBABU'],
-                //         (v) => setState(() => _selectedOperator = v!)),
+                child: _readOnlyField("Party Name", widget.customerName),
+              ),
+              const SizedBox(width: 10),
+
+              Expanded(child: _readOnlyField("BOM No", widget.bomNumber)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _readOnlyField("PO No", widget.articleNo)),
+              const SizedBox(width: 10),
+              Expanded(child: _readOnlyField("Article No", widget.extra13)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
                 child: _dropdown(
                   'Operator',
                   _selectedOperator,
@@ -418,45 +423,6 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                   _selectedPlant,
                   ['TAPE PLANT-1', 'TAPE PLANT-2'],
                   (v) => setState(() => _selectedPlant = v!),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _dropdown(
-            'Party Name',
-            _selectedParty,
-            partyList.isEmpty ? ['Loading...'] : partyList,
-            (v) {
-              setState(() => _selectedParty = v);
-              if (v != null) {
-                _loadPoNumbers(v);
-              }
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _dropdown(
-                  'Purchase Order No',
-                  _selectedPO,
-                  isPoLoading ? ['Loading...'] : poList,
-                  (v) {
-                    setState(() => _selectedPO = v);
-                    if (v != null && _selectedParty != null) {
-                      _loadArticleNumbers(_selectedParty!, v);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _dropdown(
-                  'Article No',
-                  _selectedArticle,
-                  isArticleLoading ? ['Loading...'] : articleList,
-                  (v) => setState(() => _selectedArticle = v),
                 ),
               ),
             ],
@@ -578,13 +544,13 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                   children: [
                     const Text(
                       'Generate Code',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF9E9E9E)),
+                      style: TextStyle(fontSize: 13, color: C.primaryDark),
                     ),
-                    const SizedBox(height: 4),
+
                     TextField(
                       controller: _generatedCodeController,
                       readOnly: true, // ✅ important
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(fontSize: 15),
                       decoration: const InputDecoration(
                         hintText: 'Auto-generated',
                       ),
@@ -617,61 +583,40 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
   }
 
   // ─── Buttons ──────────────────────────────────────────────────────────────
-
-  Widget _buildGenerateButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            _generatedBatch = _generateBatchNumber();
-            _generatedCode = _generateFinalCode();
-
-            _batchController.text = _generatedBatch!;
-            _generatedCodeController.text = _generatedCode ?? '';
-          });
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF212121),
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          elevation: 0,
-        ),
-        child: const Text(
-          'Generate Code',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-        ),
-      ),
-    );
-  }
-
   Widget _buildActionRow() {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _generatedBatch = _generateBatchNumber();
+                _generatedCode = _generateFinalCode();
+
+                _batchController.text = _generatedBatch!;
+                _generatedCodeController.text = _generatedCode ?? '';
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF212121),
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              side: const BorderSide(color: Color(0xFFE0E0E0), width: 0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
             child: const Text(
-              '+ New Entry',
+              'Generate Code',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF212121),
               ),
             ),
           ),
         ),
+
         const SizedBox(width: 10),
+
         Expanded(
           child: ElevatedButton(
             onPressed: () async {
@@ -688,38 +633,63 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                 _generatedCodeController.text = code;
 
                 final body = {
-                  "srNo": srNo ?? "",
+                  "srNo": srNo,
                   "operator": _selectedOperator,
                   "tapePlant": _selectedPlant,
-                  "partyName": _selectedParty ?? "",
-                  "mPurchaseOrderNo": _selectedPO ?? "",
-                  "articleNo": _selectedArticle ?? "",
+                  "partyName": widget.customerName,
+
+
+                  "mPurchaseOrderNo": widget.articleNo,
+                  "articleNo": widget.extra13,
                   "date": now.toString().split(' ')[0],
-                  "time": time, // ✅ now valid
-                  "recipeType": _selectedRecipe ?? "",
+                  "time": time,
+                  "recipeType": _selectedRecipe,
+                  "bom": widget.bomNumber,
                   "dnr": _dnrController.text,
                   "widthMM": _widthController.text,
                   "grossWeight": _grossController.text,
                   "tareWeight": _tareController.text,
                   "netWeight": _netController.text,
-                  "remark": _remarkController.text,
-                  "generateCode": code,
                   "shift": _selectedShift,
-                  "batchNo": batch,
+                  "batchNo": _batchController.text,
+                  "generateCode": _generatedCodeController.text,
                   "ppLotNo": _ppLotController.text,
+                  "remark": _remarkController.text,
                 };
 
                 final res = await api.saveTapeLineEntry(body);
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(res['message'] ?? "Saved successfully"),
-                  ),
-                );
+                if (res["success"] == true) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(res["message"] ?? "Saved Successfully"),
+                      backgroundColor: Colors.green,
+                      duration: const Duration(seconds: 1),
+                    ),
+                  );
+
+                  await Future.delayed(const Duration(seconds: 1));
+
+                  if (!mounted) return;
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => const RecentEntriesScreen(),
+                    ),
+                        (route) => false,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(res["message"] ?? "Save Failed"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               } catch (e) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: $e")),
+                );
               }
             },
             style: ElevatedButton.styleFrom(
@@ -729,49 +699,304 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              elevation: 0,
             ),
             child: const Text(
               'Save',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ),
       ],
     );
   }
+  // Widget _buildGenerateButton() {
+  //   return SizedBox(
+  //     // width: double.infinity,
+  //     child: ElevatedButton(
+  //       onPressed: () {
+  //         setState(() {
+  //           _generatedBatch = _generateBatchNumber();
+  //           _generatedCode = _generateFinalCode();
+  //
+  //           _batchController.text = _generatedBatch!;
+  //           _generatedCodeController.text = _generatedCode ?? '';
+  //         });
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         backgroundColor: const Color(0xFF212121),
+  //         foregroundColor: Colors.white,
+  //         padding: const EdgeInsets.symmetric(vertical: 14),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         elevation: 0,
+  //       ),
+  //       child: const Text(
+  //         'Generate Code',
+  //         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildActionRow() {
+  //   return Row(
+  //     children: [
+  //       Expanded(
+  //         child: OutlinedButton(
+  //           onPressed: () {},
+  //           style: OutlinedButton.styleFrom(
+  //             padding: const EdgeInsets.symmetric(vertical: 12),
+  //             side: const BorderSide(color: Color(0xFFE0E0E0), width: 0.5),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //           ),
+  //           child: const Text(
+  //             '+ New Entry',
+  //             style: TextStyle(
+  //               fontSize: 13,
+  //               fontWeight: FontWeight.w500,
+  //               color: Color(0xFF212121),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //       const SizedBox(width: 10),
+  //       Expanded(
+  //         child: ElevatedButton(
+  //           onPressed: () async {
+  //             try {
+  //               final now = DateTime.now();
+  //
+  //               final time =
+  //                   "${now.hour}:${now.minute.toString().padLeft(2, '0')}:00";
+  //
+  //               final batch = _generateBatchNumber();
+  //               final code = _generateFinalCode();
+  //
+  //               _batchController.text = batch;
+  //               _generatedCodeController.text = code;
+  //               final body = {
+  //                 "srNo": srNo,
+  //                 "operator": _selectedOperator,
+  //                 "tapePlant": _selectedPlant,
+  //                 "partyName": widget.customerName,
+  //                 "date": now.toString().split(' ')[0],
+  //                 "time": time,
+  //                 "mPurchaseOrderNo": widget.articleNo,
+  //                 "articleNo": widget.extra13,
+  //                 "bom": widget.bomNumber,
+  //                 "inquiryNo": widget.inquiryNo,
+  //                 "recipeType": _selectedRecipe,
+  //                 "dnr": _dnrController.text,
+  //                 "widthMM": _widthController.text,
+  //                 "grossWeight": _grossController.text,
+  //                 "tareWeight": _tareController.text,
+  //                 "netWeight": _netController.text,
+  //                 "shift": _selectedShift,
+  //                 "batchNo": _batchController.text,
+  //                 "generateCode": _generatedCodeController.text,
+  //                 "ppLotNo": _ppLotController.text,
+  //                 "remark": _remarkController.text,
+  //               };
+  //               // final body = {
+  //               //   "srNo": srNo ?? "",
+  //               //   "operator": _selectedOperator,
+  //               //   "tapePlant": _selectedPlant,
+  //               //   "partyName": _selectedParty ?? "",
+  //               //   "mPurchaseOrderNo": _selectedPO ?? "",
+  //               //   "articleNo": _selectedArticle ?? "",
+  //               //   "date": now.toString().split(' ')[0],
+  //               //   "time": time, // ✅ now valid
+  //               //   "recipeType": _selectedRecipe ?? "",
+  //               //   "dnr": _dnrController.text,
+  //               //   "widthMM": _widthController.text,
+  //               //   "grossWeight": _grossController.text,
+  //               //   "tareWeight": _tareController.text,
+  //               //   "netWeight": _netController.text,
+  //               //   "remark": _remarkController.text,
+  //               //   "generateCode": code,
+  //               //   "shift": _selectedShift,
+  //               //   "batchNo": batch,
+  //               //   "bom":  widget.bomNumber,
+  //               //   "ppLotNo": _ppLotController.text,
+  //               // };
+  //
+  //               final res = await api.saveTapeLineEntry(body);
+  //
+  //               if (res["success"] == true) {
+  //                 ScaffoldMessenger.of(context).showSnackBar(
+  //                   SnackBar(
+  //                     content: Text(res["message"]),
+  //                     backgroundColor: Colors.green,
+  //                   ),
+  //                 );
+  //
+  //                 Future.delayed(const Duration(seconds: 1), () {
+  //                   Navigator.pushReplacement(
+  //                     context,
+  //                     MaterialPageRoute(
+  //                       builder: (_) => const RecentEntriesScreen(),
+  //                     ),
+  //                   );
+  //                 });
+  //               } else {
+  //                 ScaffoldMessenger.of(context).showSnackBar(
+  //                   SnackBar(
+  //                     content: Text(res["message"] ?? "Save failed"),
+  //                     backgroundColor: Colors.red,
+  //                   ),
+  //                 );
+  //               }
+  //             } catch (e) {
+  //               ScaffoldMessenger.of(
+  //                 context,
+  //               ).showSnackBar(SnackBar(content: Text("Error: $e")));
+  //             }
+  //           },
+  //           style: ElevatedButton.styleFrom(
+  //             backgroundColor: const Color(0xFFE8F5E9),
+  //             foregroundColor: const Color(0xFF2E7D32),
+  //             padding: const EdgeInsets.symmetric(vertical: 12),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //             elevation: 0,
+  //           ),
+  //           child: const Text(
+  //             'Save',
+  //             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   // ─── Recent Entries Table ─────────────────────────────────────────────────
-
+  // Widget _buildFibcDetailsCard() {
+  //   return _sectionCard(
+  //     label: "FIBC Details",
+  //     child: Column(
+  //       children: [
+  //
+  //         Row(
+  //           children: [
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "Inquiry No",
+  //                 widget.inquiryNo,
+  //                 icon: Icons.confirmation_number_outlined,
+  //               ),
+  //             ),
+  //
+  //             const SizedBox(width: 12),
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "BOM No",
+  //                 widget.bomNumber,
+  //                 icon: Icons.account_tree_outlined,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //
+  //         const SizedBox(height: 14),
+  //
+  //         _readOnlyField(
+  //           "Customer Name",
+  //           widget.customerName,
+  //           icon: Icons.business,
+  //         ),
+  //
+  //         const SizedBox(height: 14),
+  //
+  //         Row(
+  //           children: [
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "Article No",
+  //                 widget.articleNo,
+  //                 icon: Icons.inventory_2_outlined,
+  //               ),
+  //             ),
+  //
+  //             const SizedBox(width: 12),
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "Extra",
+  //                 widget.extra13,
+  //                 icon: Icons.info_outline,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //
+  //         const SizedBox(height: 14),
+  //
+  //         Row(
+  //           children: [
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "Required MTR",
+  //                 widget.totalMtr.toString(),
+  //                 icon: Icons.straighten,
+  //               ),
+  //             ),
+  //
+  //             const SizedBox(width: 12),
+  //
+  //             Expanded(
+  //               child: _readOnlyField(
+  //                 "Required KG",
+  //                 widget.totalKg.toString(),
+  //                 icon: Icons.scale_outlined,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildRecentEntries() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-      Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Recent Entries',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF757575),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const RecentEntriesScreen(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Recent Entries',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF757575),
               ),
-            );
-          },
-          child: const Text("View All"),
-        )
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RecentEntriesScreen(),
+                  ),
+                );
+              },
+              child: const Text("View All"),
+            ),
+          ],
+        ),
       ],
-    ),
-    ]
     );
   }
 
@@ -828,123 +1053,38 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
   }
 }
 
-// ─── Table Helper Widgets ─────────────────────────────────────────────────────
 
-class _ColHeader extends StatelessWidget {
-  final String text;
-  final int flex;
-  const _ColHeader(this.text, {required this.flex});
 
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      flex: flex,
-      child: Text(
-        text,
+Widget _readOnlyField(String label, String value, {IconData? icon}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
         style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF9E9E9E),
-          letterSpacing: 0.4,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: C.primaryDark,
         ),
       ),
-    );
-  }
-}
 
-class _EntryRow extends StatelessWidget {
-  final EntryRecord record;
-  const _EntryRow({required this.record});
+      const SizedBox(height: 6),
 
-  Color get _recipeColor {
-    switch (record.recipe) {
-      case 'BLUE ID':
-        return const Color(0xFF1A73E8);
-      case 'SKU BLUE':
-        return const Color(0xFF2E7D32);
-      case 'LEMON YLW':
-        return const Color(0xFFF57F17);
-      default:
-        return const Color(0xFF757575);
-    }
-  }
-
-  Color get _recipeBg {
-    switch (record.recipe) {
-      case 'BLUE ID':
-        return const Color(0xFFE8F0FE);
-      case 'SKU BLUE':
-        return const Color(0xFFE8F5E9);
-      case 'LEMON YLW':
-        return const Color(0xFFFFF8E1);
-      default:
-        return const Color(0xFFF5F5F5);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: record.isActive
-          ? const Color(0xFFE8F0FE).withOpacity(0.4)
-          : Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Text(
-              '${record.id}',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: record.isActive ? FontWeight.w600 : FontWeight.w400,
-                color: record.isActive
-                    ? const Color(0xFF1A73E8)
-                    : const Color(0xFF212121),
-              ),
-            ),
+      TextFormField(
+        initialValue: value,
+        readOnly: true,
+        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        decoration: InputDecoration(
+          prefixIcon: icon == null ? null : Icon(icon, size: 20),
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey.shade300),
           ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              record.operator,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF424242)),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              record.party,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF424242)),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: _recipeBg,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                record.recipe,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: _recipeColor,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              record.gross.toStringAsFixed(0),
-              style: const TextStyle(fontSize: 12, color: Color(0xFF424242)),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
+    ],
+  );
 }

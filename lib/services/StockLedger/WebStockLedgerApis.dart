@@ -14,6 +14,7 @@ class LedgerApiService {
   //     'http://190.92.175.47:80/api/api';
       // 'https://190.92.175.47:80/Nardana/api';
   static const String _baseUrl ='http://192.168.29.125:7165/api';
+  // static const String _baseUrl ='http://190.92.175.47/Qualipack/api';
 
 
   // ================= AUTH CHECK =================

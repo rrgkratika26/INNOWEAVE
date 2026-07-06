@@ -1,4 +1,5 @@
 import 'package:IMS/AdminDashBoard/DepartmentDashboard.dart';
+import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
 import 'package:IMS/services/getSupervisors/getSupervisors.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -50,10 +51,7 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
 
     final today = DateFormat("dd-MMM-yyyy").format(DateTime.now());
 
-    futureData = RmdService.fetchSavedRollEntry(
-      fromDate: today,
-      toDate: today,
-    );
+    futureData = RmdService.fetchSavedRollEntry(fromDate: today, toDate: today);
   }
 
   Future<void> scanPrinters() async {
@@ -164,18 +162,14 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
       appBar: AppBar(
         title: const Text("Rmd Roll List", style: TextStyle(color: C.bg)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-
-              color: C.appBar1
-          ),
+          decoration: const BoxDecoration(color: C.appBar1),
         ),
         // C.primary,
         elevation: 0,
         iconTheme: IconThemeData(color: C.bg),
         actions: [
-
           IconButton(
-            icon: const Icon(Icons.bluetooth_searching,color: C.textHead,),
+            icon: const Icon(Icons.bluetooth_searching, color: C.textHead),
             onPressed: showPrinterList,
           ),
         ],
@@ -237,7 +231,6 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
 
                           DataColumn(label: Text("PO Order")),
 
-
                           DataColumn(label: Text("Gross Wt")),
                           DataColumn(label: Text("Color")),
                           DataColumn(label: Text("Mesh")),
@@ -264,7 +257,9 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
 
                           return DataRow(
                             color: MaterialStateProperty.all(
-                              index % 2 == 0 ? Colors.grey.shade50 : Colors.white,
+                              index % 2 == 0
+                                  ? Colors.grey.shade50
+                                  : Colors.white,
                             ),
                             cells: [
                               DataCell(Text(e.srNo.toString())),
@@ -331,12 +326,7 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
     );
   }
 
-
-
-
-
-  Future<bool?> showPrintPreview(
-      RmdRollEntrySavedListModel item) {
+  Future<bool?> showPrintPreview(RmdRollEntrySavedListModel item) {
     return showDialog<bool>(
       context: context,
       builder: (_) {
@@ -348,7 +338,6 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-
                   Text(
                     item.component,
                     style: const TextStyle(
@@ -371,8 +360,6 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
                   ),
 
                   const SizedBox(height: 10),
-
-
 
                   Align(
                     alignment: Alignment.centerLeft,
@@ -420,7 +407,10 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
                           onPressed: () {
                             Navigator.pop(context, false);
                           },
-                          child: const Text("Cancel",style:TextStyle(color: C.primaryDark)),
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(color: C.primaryDark),
+                          ),
                         ),
                       ),
 
@@ -431,7 +421,10 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
                           onPressed: () {
                             Navigator.pop(context, true);
                           },
-                          child: const Text("Print & Issue",style:TextStyle(color: C.primaryDark) ,),
+                          child: const Text(
+                            "Print & Issue",
+                            style: TextStyle(color: C.primaryDark),
+                          ),
                         ),
                       ),
                     ],
@@ -444,6 +437,7 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
       },
     );
   }
+
   Future<void> _printBarcodeApi(RmdRollEntrySavedListModel item) async {
     final address = _storage.read<String>('printer_address');
     final name = _storage.read<String>('printer_name') ?? 'Printer';
@@ -460,6 +454,7 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
     bool? ok = await showPrintPreview(item);
 
     if (ok != true) return;
+
     /// 🔹 Confirm dialog
     final confirm = await showDialog<bool>(
       context: context,
@@ -496,8 +491,6 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
         ),
       );
 
-      await Future.delayed(const Duration(milliseconds: 800));
-
       /// 🔥 WAKE PRINTER
       await PrinterManager.instance.send(
         type: PrinterType.bluetooth,
@@ -508,7 +501,7 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
 
       /// 🔥 TSPL LABEL (LIKE YOUR FIRST CODE)
       String tspl =
-      '''
+          '''
   SIZE 100 mm,100 mm
   GAP 3 mm,0 mm
   DIRECTION 1
@@ -534,12 +527,16 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
         type: PrinterType.bluetooth,
         bytes: tspl.codeUnits,
       );
-
-      /// 🔥 OPTIONAL API CALL AFTER PRINT
-      final response = await InStockService().printBarcode(
+      final response = await RmdService().printBarcode(
         id: item.srNo,
+        rollEntry: "RMD",
         barcode: item.barcode,
+        plant:AppGlobals.unit,
+        location: item.location,
+        operator:  item.operatorName,
+        supervisor: item.supervisorName,
       );
+      print("SAVE BODY: $response");
 
       Get.snackbar(
         "Success",
@@ -547,8 +544,13 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+
       /// Wait a moment so snackbar is visible
+      // Wait briefly so the user sees the success message
       await Future.delayed(const Duration(milliseconds: 100));
+
+      // Navigate to Dashboar
+      Get.offAll(() => const NewAdminDashboard());
 
       /// Navigate to Dashboard
     } catch (e) {
@@ -586,15 +588,15 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
                 width: double.infinity,
 
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: C.appBar4,
+                  style: ElevatedButton.styleFrom(backgroundColor: C.appBar4),
+                  icon: const Icon(Icons.print, color: C.textHigh),
+                  label: const Text(
+                    "Print + Issue",
+                    style: TextStyle(color: C.textHigh),
                   ),
-                  icon: const Icon(Icons.print,color: C.textHigh,),
-                  label: const Text("Print + Issue",style: TextStyle(color: C.textHigh),),
                   onPressed: () async {
-                    Navigator.pop(context);
-
                     await _printBarcodeApi(item);
+                    Navigator.pop(context);
                   },
                 ),
               ),
@@ -605,10 +607,8 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: C.success,
-                  ),
-                  icon: const Icon(Icons.check,color: C.bg,),
+                  style: ElevatedButton.styleFrom(backgroundColor: C.success),
+                  icon: const Icon(Icons.check, color: C.bg),
                   label: const Text(
                     "Only Issue",
                     style: TextStyle(color: Colors.white),
@@ -646,7 +646,6 @@ class _RmdRollSavedListState extends State<RmdRollSavedList> {
 
       /// Navigate to Dashboard
       Get.offAll(() => const NewAdminDashboard());
-
     } catch (e) {
       Get.snackbar(
         "Error",

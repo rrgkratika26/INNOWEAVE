@@ -7,6 +7,7 @@ import 'package:IMS/NARDANA/WebbingsReports/WebInReportScreen.dart';
 import 'package:IMS/NARDANA/WebbingsReports/WebStockReprtScreen.dart';
 
 import 'package:IMS/ScannedItem/Cutting/Cut_pieces.dart';
+import 'package:IMS/ScannedItem/TAPELINE/Reports/InReports.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -86,7 +87,9 @@ import '../ScannedItem/Lamination/LaminationScreen.dart';
 import '../ScannedItem/Cutting/CuttinIN/CuttingScreen.dart';
 import '../ScannedItem/TAPELINE/OutStockList.dart';
 import '../ScannedItem/TAPELINE/RecentEntryScreen.dart';
+import '../ScannedItem/TAPELINE/Reports/TapeOutReports.dart';
 import '../ScannedItem/TAPELINE/TApeline_IN.dart';
+import '../ScannedItem/TAPELINE/TapeInEnrtyList.dart';
 import '../ScannedItem/Webbing/WebbingScreen.dart';
 import '../Visa/Loom/FiBCLoomList_1screen.dart';
 import '../screen/BagProduction/BagProduction/BagProductionEntryScreen.dart';
@@ -312,7 +315,8 @@ class AppRoutes {
 
   static const String tapelineOut = '/tapelineOut';
   static const String tapelineRecentEntries = '/tapelineRecentEntries';
-
+static const String tapeInReport ='/tapeInReport';
+static const String tapeOutReport ='/tapeOutReport';
   static const String reccutpcscutting = '/recutpcscutting';
   static const String cuttingnardana = '/cutting';
   static const String nardanaInReport = '/nardanaInReport';
@@ -409,13 +413,19 @@ class AppRoutes {
 
     GetPage(name: foldingIn, page: () => const FoldingIn()),
 
-    GetPage(name: tapelineIn, page: () => const TapeLineApp()),
+    GetPage(
+      name: tapelineIn,
+      page: () => TapeInEnrtyList(),
+    ),
     GetPage(name: tapelineOut, page: () => const TapelineOutStockScreen()),
 
     GetPage(
       name: tapelineRecentEntries,
       page: () => const RecentEntriesScreen(),
     ),
+    GetPage(name: tapeInReport, page: () => const TapeInReports()),
+    GetPage(name: tapeOutReport, page: () => const TapeOutReports()),
+
 
     GetPage(name: reccutpcscutting, page: () => const ReceiveCutPcsScreen()),
 

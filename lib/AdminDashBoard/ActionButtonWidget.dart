@@ -108,7 +108,7 @@ enum MenuAction {
   Packing_Department,
   Packing_Report,
   In_Report,
-  Manual_PLAN_report,
+  loom_forward_Report,
   Out_Report,
   Pcs_Report,
   Rollwise_Report,
@@ -273,7 +273,7 @@ List<MenuAction> getActionsForMenu(String label) {
         MenuAction.combine_To_Loom,
       ];
     case 'LOOM':
-      return [MenuAction.IN,  MenuAction.saved_List,MenuAction.Out_Report,MenuAction.Manual_PLAN_report];
+      return [MenuAction.IN,  MenuAction.saved_List,MenuAction.Out_Report,MenuAction.loom_forward_Report];
     case 'LAMINATION':
       return [MenuAction.IN, MenuAction.OUT, MenuAction.In_Report,MenuAction.Out_Report];
     case 'CUTTING':
@@ -337,7 +337,10 @@ List<MenuAction> getActionsForMenu(String label) {
 
     case 'TAPELINE':
       return [MenuAction.IN,
-        // MenuAction.recent_entries, MenuAction.OUT
+        MenuAction.recent_entries,
+        MenuAction.OUT,
+        MenuAction.In_Report,
+        MenuAction.Out_Report
       ];
     case 'MACHINE':
       return [MenuAction.scan];

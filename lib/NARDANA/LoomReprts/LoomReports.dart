@@ -62,10 +62,10 @@ class _LoomReportScreenState extends State<LoomReportScreen> {
   void initState() {
     super.initState();
 
-    final now = DateTime.now();
 
-    _from = DateTime(now.year, now.month, now.day); // 00:00
-    _to   = DateTime(now.year, now.month, now.day, 23, 59, 59); // end of day
+
+    _to = DateTime.now();
+    _from = _to!.subtract(const Duration(days: 6)); // Last 7 days (today included)
 
     _fetchData();
   }

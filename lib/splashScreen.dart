@@ -163,7 +163,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                         ),
                         SizedBox(height: isTablet ? 16 : 12),
                         Text(
-                          'INNOWEAVE',
+                          'Inventory Management \n System',
                           style: TextStyle(
                             fontSize: isTablet ? 18 : 16,
                             color: Colors.white.withOpacity(0.9),

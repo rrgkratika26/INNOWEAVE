@@ -438,7 +438,7 @@ class _LaminationInStockScreenState extends State<LaminationInStockScreen> {
       ),
     );
 
-    if (result != null) {
+    if (result == true) {
       await refreshCount();
     }
   }

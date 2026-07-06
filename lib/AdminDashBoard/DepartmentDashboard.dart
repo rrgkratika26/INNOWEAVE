@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../Color/Colorclass.dart';
 import '../Login/LoginNardanaScreen.dart';
@@ -9,6 +12,8 @@ import '../ScannedItem/Cutting/CuttinIN/CuttingScreen.dart';
 import '../routes/app_routes.dart';
 import '../util/sharedpreference/shared_preference.dart';
 import 'ActionButtonWidget.dart';
+import 'ListMenuItems/DashboardTopBarAnimated.dart';
+import 'ListMenuItems/dashBoardMapper.dart';
 
 // ─────────────────────────────────────────────
 //  CONTROLLER
@@ -73,8 +78,8 @@ List<MenuAction> getActionsForMenu(String dept) {
       return [
         MenuAction.IN,
         MenuAction.saved_List,
-        MenuAction.In_Report,
-        MenuAction.report,
+        MenuAction.Out_Report,
+        MenuAction.loom_forward_Report,
       ];
     case 'JBL LOOM':
       return [MenuAction.IN, MenuAction.report];
@@ -87,7 +92,6 @@ List<MenuAction> getActionsForMenu(String dept) {
         MenuAction.Out_Report,
         MenuAction.Roll_Entry,
         MenuAction.saved_List,
-
 
         MenuAction.stock,
         MenuAction.transfer,
@@ -108,7 +112,10 @@ List<MenuAction> getActionsForMenu(String dept) {
         MenuAction.IN,
         MenuAction.OUT,
         MenuAction.In_Report,
-        MenuAction.report,
+        MenuAction.rollWise,
+        MenuAction.componentWise,
+        MenuAction.cuttingWise,
+
         MenuAction.stock,
         MenuAction.Approval,
         MenuAction.Pcs_Issue,
@@ -122,7 +129,7 @@ List<MenuAction> getActionsForMenu(String dept) {
     case 'BALING':
       return [
         MenuAction.entry,
-        MenuAction.report,
+        MenuAction.bailing_Report,
         MenuAction.dispatch,
         MenuAction.stock,
       ];
@@ -135,9 +142,14 @@ List<MenuAction> getActionsForMenu(String dept) {
     case 'LEDGER':
       return [MenuAction.Webbing_Ledger];
     case 'TAPELINE':
-      return [MenuAction.IN];
+      return [MenuAction.IN, MenuAction.recent_entries, MenuAction.OUT,MenuAction.In_Report,MenuAction.Out_Report];
     case 'MARKETING':
-      return [MenuAction.Inquirey_Report,MenuAction.Bom_Report,MenuAction.Issue_to_QC,MenuAction.Bom_List_remain];
+      return [
+        MenuAction.Inquirey_Report,
+        MenuAction.Bom_Report,
+        MenuAction.Issue_to_QC,
+        MenuAction.Bom_List_remain,
+      ];
     case 'JBL DISPATCH':
       return [MenuAction.entry];
     default:
@@ -176,10 +188,12 @@ class NewAdminDashboard extends StatelessWidget {
 // ─────────────────────────────────────────────
 class _AdminDashboard extends StatelessWidget {
   final DashboardController ctrl;
-  const _AdminDashboard({required this.ctrl});
+
+  _AdminDashboard({required this.ctrl});
 
   List<_DeptItem> get items => ctrl.isJBL ? _jblItems : _allItems;
-
+  bool isLoading = true;
+  Timer? timer;
   static const _jblItems = [
     _DeptItem(title: 'JBL LOOM', icon: Icons.looks),
     _DeptItem(title: 'JBL RMD', icon: Icons.inventory),
@@ -192,7 +206,7 @@ class _AdminDashboard extends StatelessWidget {
   ];
 
   static const _allItems = [
-    _DeptItem(title: 'MARKETING', icon: Icons.bar_chart),
+    // _DeptItem(title: 'MARKETING', icon: Icons.bar_chart),
     _DeptItem(title: 'PLANNING', icon: Icons.next_plan_rounded),
     _DeptItem(title: 'LOOM', icon: Icons.looks),
     _DeptItem(title: 'RMD', icon: Icons.inventory),
@@ -219,6 +233,12 @@ class _AdminDashboard extends StatelessWidget {
         child: Column(
           children: [
             _Header(ctrl: ctrl, isMobile: isMobile),
+            DashboardTopBarAnimated(
+              unit: ctrl.unit.value,
+              fromDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+              toDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            ),
+            SizedBox(height: 10),
             Expanded(
               child: Column(
                 children: [
@@ -289,7 +309,7 @@ class _DeptDashboard extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: C.bg),
                     onPressed: () {
-                      // Navigator.pop(context);
+                      Get.offAllNamed(AppRoutes.login);
                       // Ya agar GetX use kar rahe hain:
                       Get.back();
                     },
@@ -311,7 +331,7 @@ class _DeptDashboard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 40),
+                      const SizedBox(width: 10),
                       Obx(
                         () => Text(
                           ctrl.unit.value,
@@ -380,6 +400,57 @@ class _DeptDashboard extends StatelessWidget {
                 ),
               ),
             ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 32.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final confirm = await Get.dialog(
+                      AlertDialog(
+                        title: const Text("Logout"),
+                        content: const Text("Are you sure you want to logout?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(result: false),
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(color: C.textHigh),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Get.back(result: true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: C.danger,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text("Logout"),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      ctrl.logout();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: C.danger,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 85, // Increase this value
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    "Logout",
+                    style: TextStyle(fontSize: isMobile ? 18 : 25),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -423,72 +494,57 @@ class _Header extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Welcome back',
+                  'Welcome to',
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: C.textHigh,
                     fontSize: isMobile ? 11 : 13,
                   ),
                 ),
                 const SizedBox(height: 1),
                 Obx(
-                  () => Text(
-                    ctrl.user.value,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isMobile ? 17 : 22,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  () => ctrl.unit.value.isEmpty
+                      ? const SizedBox.shrink()
+                      : Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isMobile ? 10 : 14,
+                            vertical: isMobile ? 6 : 9,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: C.teal),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.factory,
+                                color: C.textHead,
+                                size: isMobile ? 13 : 16,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                ctrl.unit.value,
+                                style: TextStyle(
+                                  color: C.actionOrange,
+                                  fontSize: isMobile ? 11 : 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ],
             ),
           ),
-          Obx(
-            () => ctrl.unit.value.isEmpty
-                ? const SizedBox.shrink()
-                : Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 10 : 14,
-                      vertical: isMobile ? 6 : 9,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: C.teal),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.factory,
-                          color: C.textHead,
-                          size: isMobile ? 13 : 16,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          ctrl.unit.value,
-                          style: TextStyle(
-                            color: C.actionOrange,
-                            fontSize: isMobile ? 11 : 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
+
           // Logout Button
           Align(
             alignment: Alignment.center,
-            child: IconButton(
-              iconSize: 25,
-              color: C.danger,
-              icon: const Icon(Icons.logout_rounded),
-              tooltip: "Logout",
+            child: TextButton(
               onPressed: () async {
                 final confirm = await Get.dialog(
                   AlertDialog(
@@ -517,6 +573,10 @@ class _Header extends StatelessWidget {
                   ctrl.logout();
                 }
               },
+              child: Text(
+                "Logout",
+                style: TextStyle(color: C.danger, fontSize: 14),
+              ),
             ),
           ),
         ],
@@ -620,6 +680,8 @@ class _ActionCard extends StatelessWidget {
         return Icons.find_in_page_sharp;
       case MenuAction.In_Report:
       case MenuAction.Stock_Report:
+      case MenuAction.loom_forward_Report:
+      case MenuAction.Out_Report:
         return Icons.bar_chart_rounded;
       case MenuAction.stock:
         return Icons.inventory_2_rounded;
@@ -647,6 +709,8 @@ class _ActionCard extends StatelessWidget {
         return Icons.queue_play_next;
       case MenuAction.Webbing_Ledger:
         return Icons.menu_book_rounded;
+      case MenuAction.saved_List:
+        return Icons.save_alt_rounded;
       default:
         return Icons.arrow_forward_ios_rounded;
     }
@@ -985,14 +1049,12 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
     case 'MARKETING':
       if (action == MenuAction.Inquirey_Report)
         Get.toNamed(AppRoutes.InquiryMarketingReport);
-      if (action == MenuAction.Bom_Report)
-        Get.toNamed(AppRoutes.bomReport);
+      if (action == MenuAction.Bom_Report) Get.toNamed(AppRoutes.bomReport);
 
       if (action == MenuAction.Bom_List_remain) {
         Get.toNamed(AppRoutes.bomList);
       }
-      if (action == MenuAction.Issue_to_QC)
-        Get.toNamed(AppRoutes.Issue_to_QC);
+      if (action == MenuAction.Issue_to_QC) Get.toNamed(AppRoutes.Issue_to_QC);
 
       break;
     case 'PLANNING':
@@ -1012,7 +1074,7 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.loomSaveList);
       else if (action == MenuAction.Out_Report)
         Get.toNamed(AppRoutes.loomReports);
-      else if (action == MenuAction.Manual_PLAN_report)
+      else if (action == MenuAction.loom_forward_Report)
         Get.toNamed(AppRoutes.manualPlanningReports);
       break;
     case 'RMD':
@@ -1020,7 +1082,6 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.rmdIn);
       else if (action == MenuAction.OUT)
         Get.toNamed(AppRoutes.rmdOut);
-
       else if (action == MenuAction.Roll_Entry)
         Get.toNamed(AppRoutes.rollEntry);
       else if (action == MenuAction.saved_List)
@@ -1087,8 +1148,8 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.webbingIn);
       else if (action == MenuAction.OUT)
         Get.toNamed(AppRoutes.webbingOut);
-      // else if (action == MenuAction.report)
-      //   Get.toNamed(AppRoutes.webbNardanaReport);
+      else if (action == MenuAction.report)
+        Get.toNamed(AppRoutes.webbNardanaReport);
       // else if (action == MenuAction.stock)
       //   Get.toNamed(AppRoutes.webStockSlider);
       break;
@@ -1097,11 +1158,17 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.stockLedger);
       break;
     case 'TAPELINE':
-      if (action == MenuAction.IN) Get.toNamed(AppRoutes.tapelineIn);
-      // else if (action == MenuAction.recent_entries)
-      //   Get.toNamed(AppRoutes.tapelineRecentEntries);
-      // else if (action == MenuAction.OUT)
-      //   Get.toNamed(AppRoutes.tapelineOut);
+      if (action == MenuAction.IN)
+        Get.toNamed(AppRoutes.tapelineIn);
+      else if (action == MenuAction.recent_entries)
+        Get.toNamed(AppRoutes.tapelineRecentEntries);
+      else if (action == MenuAction.OUT)
+        Get.toNamed(AppRoutes.tapelineOut);
+      else if (action == MenuAction.In_Report)
+        Get.toNamed(AppRoutes.tapeInReport);
+      else if (action == MenuAction.Out_Report)
+        Get.toNamed(AppRoutes.tapeOutReport);
+
       break;
     // case 'MARKETING':
     //   if (action == MenuAction.Inquirey_Report)

@@ -1,3 +1,4 @@
+import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
 import 'package:IMS/services/getSupervisors/getSupervisors.dart';
 import 'package:IMS/util/sharedpreference/shared_preference.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import '../../services/NardanaApis/NardanaApi.dart';
 import '../../util/widget/CountRecords/CountRecords.dart';
 import 'LoomReportModelClass.dart';
 import 'ManualPlanningModel.dart';
-
 
 class ManualPlanningReports extends StatefulWidget {
   const ManualPlanningReports({super.key});
@@ -22,6 +22,7 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
   String _query = '';
   DateTime? _from;
   DateTime? _to;
+  String _unit = AppGlobals.unit;
   List<ManualPlanningModel> _allReports = [];
   bool _isLoading = false;
 
@@ -29,18 +30,17 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
     final q = _query.toLowerCase();
     final matchQ =
         q.isEmpty ||
-            r.bomNo.toLowerCase().contains(q) ||
-            r.customerName.toLowerCase().contains(q) ||
-            r.fabricCode.toLowerCase().contains(q) ||
-            r.poNum.toLowerCase().contains(q);
+        r.bomNo.toLowerCase().contains(q) ||
+        r.customerName.toLowerCase().contains(q) ||
+        r.fabricCode.toLowerCase().contains(q) ||
+        r.poNum.toLowerCase().contains(q);
 
     // final matchFrom = fromDate == null || !r.cr.isBefore(fromDate);
     // final matchTo = toDate == null || !r.date.isAfter(toDate);
     return matchQ;
   }).toList();
 
-  int get _totalRecords =>
-      ReportTotalHelper.totalRecords(_filtered);
+  int get _totalRecords => ReportTotalHelper.totalRecords(_filtered);
 
   double get totalRequiredKg =>
       _filtered.fold(0.0, (sum, e) => sum + e.requiredKg);
@@ -54,7 +54,7 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
     final now = DateTime.now();
 
     _from = DateTime(now.year, now.month, now.day); // 00:00
-    _to   = DateTime(now.year, now.month, now.day, 23, 59, 59); // end of day
+    _to = DateTime(now.year, now.month, now.day, 23, 59, 59); // end of day
 
     _fetchData();
   }
@@ -89,7 +89,7 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
       final data = await InStockService().fetchManualPlanning(
         from: _from,
         to: _to,
-        unit: AppSession.unit
+        unit: _unit,
       );
 
       setState(() {
@@ -114,7 +114,7 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
       _searchCtrl.clear();
 
       _from = DateTime(now.year, now.month, now.day);
-      _to   = DateTime(now.year, now.month, now.day, 23, 59, 59);
+      _to = DateTime(now.year, now.month, now.day, 23, 59, 59);
     });
 
     _fetchData(); // 🔥 IMPORTANT
@@ -156,16 +156,17 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
         //   const SizedBox(width: 4),
         // ],
         actions: [
-
           /// SIMPLE TEXT COUNT
           CountText(count: _filtered.length),
 
           IconButton(
-            icon: const Icon(Icons.calendar_today, color: C.primaryDark,size: 18,),
+            icon: const Icon(
+              Icons.calendar_today,
+              color: C.primaryDark,
+              size: 18,
+            ),
             onPressed: _pickDateRange,
           ),
-
-
         ],
 
         bottom: PreferredSize(
@@ -179,23 +180,19 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
               decoration: InputDecoration(
                 hintText: 'Search barcode, operator, fabric…',
                 hintStyle: const TextStyle(color: C.bg, fontSize: 14),
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: C.bg,
-                  size: 20,
-                ),
+                prefixIcon: const Icon(Icons.search, color: C.bg, size: 20),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white54,
-                    size: 18,
-                  ),
-                  onPressed: () => setState(() {
-                    _query = '';
-                    _searchCtrl.clear();
-                  }),
-                )
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white54,
+                          size: 18,
+                        ),
+                        onPressed: () => setState(() {
+                          _query = '';
+                          _searchCtrl.clear();
+                        }),
+                      )
                     : null,
                 filled: true,
                 fillColor: Colors.white12,
@@ -209,13 +206,15 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
           ),
         ),
       ),
-      body:  (!_isLoading && _filtered.isEmpty)
+      body: (!_isLoading && _filtered.isEmpty)
           ? _emptyState()
-          : Column(children: [
+          : Column(
+              children: [
+                _summaryBar(),
 
-        _summaryBar(),
-
-        Expanded(child: _table(_filtered))]),
+                Expanded(child: _table(_filtered)),
+              ],
+            ),
     );
   }
 
@@ -245,24 +244,20 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
           columnSpacing: 16,
           horizontalMargin: 14,
           columns: const [
-
-
-              DataColumn(label: Text("Sr")),
-              DataColumn(label: Text("Order No")),
-              DataColumn(label: Text("BOM No")),
-              DataColumn(label: Text("Customer")),
-              DataColumn(label: Text("PO No")),
-              DataColumn(label: Text("Fabric Code")),
-              DataColumn(label: Text("Req Mtr")),
-              DataColumn(label: Text("Req Kg")),
-              DataColumn(label: Text("Extra Mtr")),
-              DataColumn(label: Text("Extra Kg")),
-              DataColumn(label: Text("Actual Mtr")),
-              DataColumn(label: Text("Actual Kg")),
-              DataColumn(label: Text("Created")),
-              DataColumn(label: Text("Forward By")),
-
-
+            DataColumn(label: Text("Sr")),
+            DataColumn(label: Text("Order No")),
+            DataColumn(label: Text("BOM No")),
+            DataColumn(label: Text("Customer")),
+            DataColumn(label: Text("PO No")),
+            DataColumn(label: Text("Fabric Code")),
+            DataColumn(label: Text("Req Mtr")),
+            DataColumn(label: Text("Req Kg")),
+            DataColumn(label: Text("Extra Mtr")),
+            DataColumn(label: Text("Extra Kg")),
+            DataColumn(label: Text("Actual Mtr")),
+            DataColumn(label: Text("Actual Kg")),
+            DataColumn(label: Text("Created")),
+            DataColumn(label: Text("Forward By")),
           ],
           source: _LoomDataSource(data),
         ),
@@ -276,16 +271,17 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-
         TextButton.icon(
           onPressed: _clear,
           icon: const Icon(Icons.tab_unselected_sharp, color: C.textHigh),
-          label: const Text('Select First Date range ', style: TextStyle(color: C.textHigh)),
+          label: const Text(
+            'Select First Date range ',
+            style: TextStyle(color: C.textHigh),
+          ),
         ),
       ],
     ),
   );
-
 
   Widget _summaryBar() {
     return Container(
@@ -335,7 +331,6 @@ class _ManualPlanningReportsState extends State<ManualPlanningReports> {
       ),
     );
   }
-
 }
 
 // ── Data Source ───────────────────────────────────────────────────────────────
@@ -351,19 +346,13 @@ class _LoomDataSource extends DataTableSource {
 
     return DataRow(
       cells: [
-
         DataCell(Text("${r.sr}")),
         DataCell(Text("${r.orderNo}")),
         DataCell(Text(r.bomNo)),
         DataCell(Text(r.customerName)),
         DataCell(Text(r.poNum)),
 
-        DataCell(
-          SizedBox(
-            width: 180,
-            child: Text(r.fabricCode),
-          ),
-        ),
+        DataCell(SizedBox(width: 180, child: Text(r.fabricCode))),
 
         DataCell(Text("${r.requiredMtr}")),
         DataCell(Text("${r.requiredKg}")),

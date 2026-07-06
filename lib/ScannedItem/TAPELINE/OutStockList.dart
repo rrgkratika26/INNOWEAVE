@@ -65,47 +65,24 @@ class _TapelineOutStockScreenState extends State<TapelineOutStockScreen> {
     return Scaffold(
       backgroundColor: C.bg,
       appBar: AppBar(
-        title: const Text("OutStock",style: TextStyle(color: C.bg),),
+        title: const Text(" Tapeline Out Stock",style: TextStyle(color: C.bg),),
         backgroundColor: C.primary,
         iconTheme: IconThemeData(color: C.bg),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const BarcodeEntryScreen(),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.qr_code_scanner, color: Colors.white, size: 18),
-                    SizedBox(width: 6),
-                    Text(
-                      "Barcode",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: C.primaryDark,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.qr_code_scanner,size: 25,),
+        label: const Text("Sacn",style: TextStyle(fontSize: 15),),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const BarcodeEntryScreen(),
             ),
-          ),
-        ],
+          );
+        },
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: C.appBar3,))

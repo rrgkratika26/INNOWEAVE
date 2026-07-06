@@ -46,7 +46,7 @@ class _RmdOutScreenState extends State<RmdOutScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
-          title: const Text("RMD OUT Reports", style: TextStyle(color: C.bg)),
+          title: const Text("RMD OUT", style: TextStyle(color: C.bg)),
           flexibleSpace: Container(
             decoration: const BoxDecoration(color: C.appBar1),
           ),

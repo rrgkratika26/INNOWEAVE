@@ -69,7 +69,8 @@ class _ManualToLoomScreenState extends State<ManualToLoomScreen> {
   final reqMtrController = TextEditingController();
   final reqKgController = TextEditingController();
   final extraKgController = TextEditingController();
-
+  final bomController = TextEditingController();
+  final partyController = TextEditingController();
   Map<String, PartyNameModel> partyMap = {};
   double actualMtr = 0;
   double actualKg = 0;
@@ -94,7 +95,8 @@ class _ManualToLoomScreenState extends State<ManualToLoomScreen> {
   void dispose() {
     poController.dispose();
     articleController.dispose();
-
+    bomController.dispose();
+    partyController.dispose();
     reqMtrController.dispose();
     reqKgController.dispose();
     widthController.dispose();
@@ -655,35 +657,103 @@ class _ManualToLoomScreenState extends State<ManualToLoomScreen> {
                     /// BOM + PO
                     Row(
                       children: [
+                  //       Expanded(
+                  //         child:infoDropdown(
+                  // title: "BOM No",
+                  // value: selectedBomNo,
+                  //           items: inquiryList,
+                  //           onChanged: (value) {
+                  //             setState(() {
+                  //               selectedBomNo = value;
+                  //             });
+                  //           },
+                  //
+                  //         ),
+                  //       ),
+                  //
+                  //       const SizedBox(width: 8),
+                  //
+                  //       Expanded(
+                  //         child: infoDropdown(
+                  //           title: "Party Name",
+                  //           value: selectedPartyName,
+                  //           items: partyList,
+                  //           onChanged: (value) {
+                  //             setState(() {
+                  //               selectedPartyName = value;
+                  //             });
+                  //           },
+                  //
+                  //         ),
+                  //       ),
+
+
+
+
                         Expanded(
-                          child:infoDropdown(
-                  title: "BOM No",
-                  value: selectedBomNo,
-                            items: inquiryList,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedBomNo = value;
-                              });
-                            },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                "BOM No",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 6),
 
-                          ),
+                              Autocomplete<String>(
+                                optionsBuilder: (TextEditingValue value) {
+                                  if (value.text.isEmpty) {
+                                    return inquiryList;
+                                  }
+
+                                  return inquiryList.where(
+                                        (e) => e.toLowerCase().contains(value.text.toLowerCase()),
+                                  );
+                                },
+
+                                onSelected: (value) {
+                                  setState(() {
+                                    selectedBomNo = value;
+                                    bomController.text = value;
+                                  });
+                                },
+
+                                fieldViewBuilder:
+                                    (context, textController, focusNode, onFieldSubmitted) {
+                                  textController.text = bomController.text;
+
+                                  return TextField(
+                                    controller: textController,
+                                    focusNode: focusNode,
+                                    decoration: InputDecoration(
+                                      hintText: "Enter BOM No",
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    onChanged: (value) {
+                                      selectedBomNo = value;
+                                      bomController.text = value;
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          )
                         ),
-
                         const SizedBox(width: 8),
-
-                        Expanded(
-                          child: infoDropdown(
-                            title: "Party Name",
-                            value: selectedPartyName,
-                            items: partyList,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedPartyName = value;
-                              });
-                            },
-
-                          ),
-                        ),
+                        Expanded(child: editableDropdown(
+                          title: "Party Name",
+                          controller: partyController,
+                          items: partyList,
+                          onSelected: (value) {
+                            setState(() {
+                              selectedPartyName = value;
+                            });
+                          },
+                        ),)
                       ],
                     ),
 
@@ -871,7 +941,69 @@ class _ManualToLoomScreenState extends State<ManualToLoomScreen> {
     );
   }
 
+  Widget editableDropdown({
+    required String title,
+    required TextEditingController controller,
+    required List<String> items,
+    required Function(String) onSelected,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 6),
 
+        Autocomplete<String>(
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            if (textEditingValue.text.isEmpty) {
+              return items;
+            }
+
+            return items.where((item) => item
+                .toLowerCase()
+                .contains(textEditingValue.text.toLowerCase()));
+          },
+
+          onSelected: (value) {
+            controller.text = value;
+            onSelected(value);
+          },
+
+          fieldViewBuilder: (
+              context,
+              textController,
+              focusNode,
+              onFieldSubmitted,
+              ) {
+            textController.text = controller.text;
+
+            textController.selection = TextSelection.fromPosition(
+              TextPosition(offset: textController.text.length),
+            );
+
+            return TextField(
+              controller: textController,
+              focusNode: focusNode,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onChanged: (value) {
+                controller.text = value;
+                onSelected(value);
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
   Future loadBomList() async {
     final data = await InStockService().getBomPartyList();
 

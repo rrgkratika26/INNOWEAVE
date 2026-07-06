@@ -136,7 +136,7 @@ class RmdService {
       );
 
       debugPrint("SAVE STATUS : ${response.statusCode}");
-      debugPrint("SAVE RESPONSE : ${response.body}");
+      debugPrint("SAVE Roll EntryRESPONSE : ${response.body}");
 
       if (response.statusCode == 200) {
         return response.body
@@ -171,5 +171,40 @@ class RmdService {
       throw Exception("Failed to load Saved Roll Entry");
     }
   }
+
+
+  Future<Map<String, dynamic>> printBarcode({
+    required int id,
+    required String rollEntry,
+    required String barcode,
+    required String plant,
+    required String location,
+    required String operator,
+    required String supervisor,
+  }) async {
+    final url = Uri.parse("${InStockService.baseUrl}/Rmd/PrintBarcode");
+
+    final response = await http.post(
+      url,
+      headers: await InStockService.authHeaders(),
+      body: jsonEncode({
+        "id": id,
+        "rollEntry": rollEntry,
+        "barcode": barcode,
+        "plant": plant,
+        "location": location,
+        "operator": operator,
+        "supervisor": supervisor,
+      }),
+    );
+    print("SAVE BODY: $response");
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Print API Failed : ${response.body}");
+    }
+  }
+
 
 }

@@ -1257,8 +1257,11 @@ class _SavedListScreenState extends State<SavedListScreen> {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      /// Wait a moment so snackbar is visible
+      // Wait briefly so the user sees the success message
       await Future.delayed(const Duration(milliseconds: 100));
+
+// Navigate to Dashboard
+      Get.offAll(() => const NewAdminDashboard());
 
       /// Navigate to Dashboard
     } catch (e) {
