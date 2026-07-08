@@ -91,99 +91,96 @@ class _RecentEntriesScreenState extends State<RecentEntriesScreen> {
                 // 📊 TABLE
                 Expanded(
                   child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 16,
-                      columns: const [
-                        DataColumn(label: Text("ID")),
-                        DataColumn(label: Text("Supervisor")),
-                        DataColumn(label: Text("Operator")),
-                        DataColumn(label: Text("Party")),
-                        DataColumn(label: Text("PO No")),
-                        DataColumn(label: Text("Article No")),
-                        DataColumn(label: Text("Date")),
-                        DataColumn(label: Text("Time")),
-                        DataColumn(label: Text("Recipe")),
-                        DataColumn(label: Text("DNR")),
-                        DataColumn(label: Text("Width")),
-                        DataColumn(label: Text("Gross")),
-                        DataColumn(label: Text("Tare")),
-                        DataColumn(label: Text("Net")),
-                        DataColumn(label: Text("PP Lot")),
-                        DataColumn(label: Text("Code")),
-                        DataColumn(label: Text("Status")),
-                        DataColumn(label: Text("Entry Type")),
-                        DataColumn(label: Text("Issue")),
-                        DataColumn(label: Text("Remark")),
-
-                      ],
-                      rows: filteredData.map((item) {
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              Text(
-                                item['id'].toString(),
-                                style: TextStyle(
-                                  color: C.success,
-                                  fontWeight: FontWeight.w600,
+                    scrollDirection: Axis.vertical,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 16,
+                        columns: const [
+                          DataColumn(label: Text("ID")),
+                          DataColumn(label: Text("Supervisor")),
+                          DataColumn(label: Text("Operator")),
+                          DataColumn(label: Text("Party")),
+                          DataColumn(label: Text("PO No")),
+                          DataColumn(label: Text("Article No")),
+                          DataColumn(label: Text("Date")),
+                          DataColumn(label: Text("Time")),
+                          DataColumn(label: Text("Recipe")),
+                          DataColumn(label: Text("DNR")),
+                          DataColumn(label: Text("Width")),
+                          DataColumn(label: Text("Gross")),
+                          DataColumn(label: Text("Tare")),
+                          DataColumn(label: Text("Net")),
+                          DataColumn(label: Text("PP Lot")),
+                          DataColumn(label: Text("Code")),
+                          DataColumn(label: Text("Status")),
+                          DataColumn(label: Text("Entry Type")),
+                          DataColumn(label: Text("Issue")),
+                          DataColumn(label: Text("Remark")),
+                        ],
+                        rows: filteredData.map((item) {
+                          return DataRow(
+                            cells: [
+                              DataCell(
+                                Text(
+                                  item['id'].toString(),
+                                  style: TextStyle(
+                                    color: C.success,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataCell(Text(item['supervisor'] ?? '')),
-
-                            // ⚠️ API typo handled here
-                            DataCell(Text(item['oparator'] ?? '')),
-
-                            DataCell(Text(item['party'] ?? '')),
-                            DataCell(Text(item['contno'] ?? '')),
-                            DataCell(Text(item['workorder'] ?? '')),
-                            DataCell(
-                              Text(
-                                (item['date'] ?? '')
-                                    .toString()
-                                    .split(' ')
-                                    .first,
-                              ),
-                            ),
-                            DataCell(Text(item['time']?.trim() ?? '')),
-                            DataCell(Text(item['recipetype'] ?? '')),
-                            DataCell(Text(item['dnr'] ?? '')),
-                            DataCell(Text(item['widthmm'] ?? '')),
-                            DataCell(Text(item['gross'] ?? '')),
-                            DataCell(Text(item['tare'] ?? '')),
-                            DataCell(Text(item['net'] ?? '')),
-                            DataCell(Text(item['pplotno'] ?? '')),
-                            DataCell(Text(item['code'] ?? '')),
-
-                            // ✅ Status with color
-                            DataCell(
-                              Text(
-                                item['status'] ?? '',
-                                style: TextStyle(
-                                  color: item['status'] == "Pending"
-                                      ? Colors.orange
-                                      : Colors.green,
-                                  fontWeight: FontWeight.w600,
+                              DataCell(Text(item['supervisor'] ?? '')),
+                              DataCell(Text(item['oparator'] ?? '')),
+                              DataCell(Text(item['party'] ?? '')),
+                              DataCell(Text(item['contno'] ?? '')),
+                              DataCell(Text(item['workorder'] ?? '')),
+                              DataCell(
+                                Text(
+                                  (item['date'] ?? '')
+                                      .toString()
+                                      .split(' ')
+                                      .first,
                                 ),
                               ),
-                            ),
+                              DataCell(Text(item['time']?.trim() ?? '')),
+                              DataCell(Text(item['recipetype'] ?? '')),
+                              DataCell(Text(item['dnr'] ?? '')),
+                              DataCell(Text(item['widthmm'] ?? '')),
+                              DataCell(Text(item['gross'] ?? '')),
+                              DataCell(Text(item['tare'] ?? '')),
+                              DataCell(Text(item['net'] ?? '')),
+                              DataCell(Text(item['pplotno'] ?? '')),
+                              DataCell(Text(item['code'] ?? '')),
 
-                            DataCell(Text(item['entrytype'] ?? '')),
-                            DataCell(Text(item['statuS_ISSUE'] ?? '')),
-
-                            DataCell(
-                              SizedBox(
-                                width: 120,
-                                child: Text(
-                                  item['remark']?.trim() ?? '',
-                                  overflow: TextOverflow.ellipsis,
+                              DataCell(
+                                Text(
+                                  item['status'] ?? '',
+                                  style: TextStyle(
+                                    color: item['status'] == "Pending"
+                                        ? Colors.orange
+                                        : Colors.green,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                            ),
-                          
-                          ],
-                        );
-                      }).toList(),
+
+                              DataCell(Text(item['entrytype'] ?? '')),
+                              DataCell(Text(item['statuS_ISSUE'] ?? '')),
+
+                              DataCell(
+                                SizedBox(
+                                  width: 120,
+                                  child: Text(
+                                    item['remark']?.trim() ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),

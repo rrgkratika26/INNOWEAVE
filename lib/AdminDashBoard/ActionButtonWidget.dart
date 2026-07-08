@@ -320,9 +320,11 @@ List<MenuAction> getActionsForMenu(String label) {
       ];
     case 'WEBBING':
       return [
+        MenuAction.entry,
+        MenuAction.saved_List,
         MenuAction.IN,
         MenuAction.OUT,
-        // MenuAction.report,
+        MenuAction.report,
         // MenuAction.stock,
       ];
     // case 'LEDGER':
@@ -338,9 +340,11 @@ List<MenuAction> getActionsForMenu(String label) {
     case 'TAPELINE':
       return [MenuAction.IN,
         MenuAction.recent_entries,
+
         MenuAction.OUT,
         MenuAction.In_Report,
-        MenuAction.Out_Report
+        MenuAction.Out_Report,
+        MenuAction.Stock_Report
       ];
     case 'MACHINE':
       return [MenuAction.scan];

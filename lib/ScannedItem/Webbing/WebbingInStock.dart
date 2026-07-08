@@ -2,6 +2,7 @@ import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
 import 'package:IMS/util/sharedpreference/shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../Color/Colorclass.dart';
 import '../../QRScan/QrScanScreen.dart';
 import '../../screen/inStock/ReportScreen.dart';
 import '../../screen/inStock/inStockController.dart';
@@ -25,7 +26,7 @@ class _WebbingInStockState extends State<WebbingInStock> {
 
   String department = 'WEBBING';
   int totalScanned = 0;
-
+  Future<WebbingReportModel?>? _reportFuture;
   String getApiDate() {
     final now = DateTime.now();
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
@@ -40,6 +41,7 @@ class _WebbingInStockState extends State<WebbingInStock> {
     super.initState();
     controller = InStockWebController();
     _dropdownFuture = controller.loadWebInitialData();
+    _reportFuture = InStockService.fetchWebbingScannedItems();
   }
 
   Future<void> _loadData() async {
@@ -79,18 +81,18 @@ class _WebbingInStockState extends State<WebbingInStock> {
 
       Navigator.pop(context); // remove loader
 
-      if (response["status"] == true) {
+      if (response["success"] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response["message"] ?? "Barcode Verified ✅")),
+
+          SnackBar(
+            backgroundColor: C.success,
+              content: Text(response["message"])),
         );
 
         setState(() {
           totalScanned++;
+          _reportFuture = InStockService.fetchWebbingScannedItems();
         });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response["message"] ?? "Invalid barcode")),
-        );
       }
     } catch (e) {
       Navigator.pop(context);
@@ -285,7 +287,8 @@ class _WebbingInStockState extends State<WebbingInStock> {
         padding: const EdgeInsets.all(24),
         decoration: _boxDecoration(borderRadius: 20),
         child: FutureBuilder<WebbingReportModel?>(
-          future: InStockService.fetchWebbingScannedItems(),
+          // future: InStockService.fetchWebbingScannedItems(),
+          future: _reportFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Column(

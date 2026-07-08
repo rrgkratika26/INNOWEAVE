@@ -136,13 +136,26 @@ List<MenuAction> getActionsForMenu(String dept) {
     case 'JBL BALING':
       return [MenuAction.entry];
     case 'WEBBING':
-      return [MenuAction.IN, MenuAction.OUT, MenuAction.report];
+      return [
+        MenuAction.entry,
+        MenuAction.saved_List,
+        MenuAction.IN,
+        MenuAction.OUT,
+        MenuAction.report,
+      ];
     case 'JBL WEBBING':
       return [MenuAction.IN];
     case 'LEDGER':
       return [MenuAction.Webbing_Ledger];
     case 'TAPELINE':
-      return [MenuAction.IN, MenuAction.recent_entries, MenuAction.OUT,MenuAction.In_Report,MenuAction.Out_Report];
+      return [
+        MenuAction.IN,
+        MenuAction.recent_entries,
+        MenuAction.OUT,
+        MenuAction.In_Report,
+        MenuAction.Out_Report,
+        MenuAction.Stock_Report,
+      ];
     case 'MARKETING':
       return [
         MenuAction.Inquirey_Report,
@@ -235,8 +248,10 @@ class _AdminDashboard extends StatelessWidget {
             _Header(ctrl: ctrl, isMobile: isMobile),
             DashboardTopBarAnimated(
               unit: ctrl.unit.value,
-              fromDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-              toDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+              fromDate: DateFormat('yyyy-MM-dd')
+                  .format(DateTime.now().subtract(const Duration(days: 6))),
+              toDate: DateFormat('yyyy-MM-dd')
+                  .format(DateTime.now()),
             ),
             SizedBox(height: 10),
             Expanded(
@@ -1144,7 +1159,11 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.baleStockgroup);
       break;
     case 'WEBBING':
-      if (action == MenuAction.IN)
+      if (action == MenuAction.entry)
+        Get.toNamed(AppRoutes.webEntryScreen);
+      else if (action == MenuAction.saved_List)
+        Get.toNamed(AppRoutes.webSaveEntryScreen);
+      else if (action == MenuAction.IN)
         Get.toNamed(AppRoutes.webbingIn);
       else if (action == MenuAction.OUT)
         Get.toNamed(AppRoutes.webbingOut);
@@ -1168,6 +1187,8 @@ void _navigate(BuildContext ctx, String dept, MenuAction action) {
         Get.toNamed(AppRoutes.tapeInReport);
       else if (action == MenuAction.Out_Report)
         Get.toNamed(AppRoutes.tapeOutReport);
+      else if (action == MenuAction.Stock_Report)
+        Get.toNamed(AppRoutes.tapeStockReport);
 
       break;
     // case 'MARKETING':

@@ -8,6 +8,7 @@ import 'package:IMS/NARDANA/WebbingsReports/WebStockReprtScreen.dart';
 
 import 'package:IMS/ScannedItem/Cutting/Cut_pieces.dart';
 import 'package:IMS/ScannedItem/TAPELINE/Reports/InReports.dart';
+import 'package:IMS/ScannedItem/Webbing/WebbingEntry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -88,8 +89,10 @@ import '../ScannedItem/Cutting/CuttinIN/CuttingScreen.dart';
 import '../ScannedItem/TAPELINE/OutStockList.dart';
 import '../ScannedItem/TAPELINE/RecentEntryScreen.dart';
 import '../ScannedItem/TAPELINE/Reports/TapeOutReports.dart';
+import '../ScannedItem/TAPELINE/Reports/TapeStockReport.dart';
 import '../ScannedItem/TAPELINE/TApeline_IN.dart';
 import '../ScannedItem/TAPELINE/TapeInEnrtyList.dart';
+import '../ScannedItem/Webbing/WebSaveEntries.dart';
 import '../ScannedItem/Webbing/WebbingScreen.dart';
 import '../Visa/Loom/FiBCLoomList_1screen.dart';
 import '../screen/BagProduction/BagProduction/BagProductionEntryScreen.dart';
@@ -301,11 +304,11 @@ class AppRoutes {
   static const String loomIn = '/loom-in';
   static const String loomReports = '/loomReports';
   static const String loomSaveList = '/loomSaveList';
-  static const String manualPlanningReports ='/manualPlanningreports';
+  static const String manualPlanningReports = '/manualPlanningreports';
   static const String rmdIn = '/rmd-in';
   static const String rmdOut = '/rmd-out';
-  static const String rollEntry= '/rollEntry';
-  static const String rmdRollSavedList ='/rmdRollSavedList';
+  static const String rollEntry = '/rollEntry';
+  static const String rmdRollSavedList = '/rmdRollSavedList';
   static const String rmdtransfer = '/rmdTransfer';
   static const String rmdNardanaStock = '/rmdNardanaStock';
   static const String lamination = '/lamination';
@@ -315,8 +318,9 @@ class AppRoutes {
 
   static const String tapelineOut = '/tapelineOut';
   static const String tapelineRecentEntries = '/tapelineRecentEntries';
-static const String tapeInReport ='/tapeInReport';
-static const String tapeOutReport ='/tapeOutReport';
+  static const String tapeInReport = '/tapeInReport';
+  static const String tapeOutReport = '/tapeOutReport';
+  static const String tapeStockReport = '/tapeStockReport';
   static const String reccutpcscutting = '/recutpcscutting';
   static const String cuttingnardana = '/cutting';
   static const String nardanaInReport = '/nardanaInReport';
@@ -325,6 +329,8 @@ static const String tapeOutReport ='/tapeOutReport';
   static const String reCutIssue = '/reCutIssue';
   static const String webbingIn = '/webbing-in';
   static const String webbingOut = '/webbing-out';
+  static const String webEntryScreen = '/webEntryScreen';
+  static const String webSaveEntryScreen = '/webSaveEntryScreen';
 
   static const String rollWiseReport = '/rollWiseReport';
   static const String componentWiseReport = '/componentWiseReport';
@@ -387,7 +393,10 @@ static const String tapeOutReport ='/tapeOutReport';
     ),
 
     GetPage(name: loomReports, page: () => const LoomReportScreen()),
-    GetPage(name: manualPlanningReports, page: () => const ManualPlanningReports()),
+    GetPage(
+      name: manualPlanningReports,
+      page: () => const ManualPlanningReports(),
+    ),
 
     GetPage(name: loomSaveList, page: () => const SavedListScreen()),
 
@@ -413,10 +422,7 @@ static const String tapeOutReport ='/tapeOutReport';
 
     GetPage(name: foldingIn, page: () => const FoldingIn()),
 
-    GetPage(
-      name: tapelineIn,
-      page: () => TapeInEnrtyList(),
-    ),
+    GetPage(name: tapelineIn, page: () => TapeInEnrtyList()),
     GetPage(name: tapelineOut, page: () => const TapelineOutStockScreen()),
 
     GetPage(
@@ -425,7 +431,7 @@ static const String tapeOutReport ='/tapeOutReport';
     ),
     GetPage(name: tapeInReport, page: () => const TapeInReports()),
     GetPage(name: tapeOutReport, page: () => const TapeOutReports()),
-
+    GetPage(name: tapeStockReport, page: () => const TapeStockScreen()),
 
     GetPage(name: reccutpcscutting, page: () => const ReceiveCutPcsScreen()),
 
@@ -450,6 +456,14 @@ static const String tapeOutReport ='/tapeOutReport';
     GetPage(
       name: webbingOut,
       page: () => const WebbingScreen(screenType: 'OUT'),
+    ),
+    GetPage(
+      name: AppRoutes.webSaveEntryScreen,
+      page: () => const WebSaveEntriesScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.webEntryScreen,
+      page: () => const WebbingEntryScreen(),
     ),
 
     GetPage(name: rollWiseReport, page: () => RollWiseReportScreen()),
@@ -532,7 +546,7 @@ static const String tapeOutReport ='/tapeOutReport';
 
     GetPage(name: toLoom, page: () => const CombineToLoomScreen()),
 
-    GetPage(name: manualToLoom, page: () =>  ManualToLoomScreen()),
+    GetPage(name: manualToLoom, page: () => ManualToLoomScreen()),
 
     GetPage(name: laminationOutStock, page: () => const RollListScreen()),
 

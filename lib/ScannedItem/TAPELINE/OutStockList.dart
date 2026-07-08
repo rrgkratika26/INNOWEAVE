@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 
+import '../../AdminDashBoard/DepartmentDashboard.dart';
 import '../../Color/Colorclass.dart';
 import '../../services/getSupervisors/getSupervisors.dart';
 import 'EntryBarcodeOutStock.dart';
@@ -68,13 +71,21 @@ class _TapelineOutStockScreenState extends State<TapelineOutStockScreen> {
         title: const Text(" Tapeline Out Stock",style: TextStyle(color: C.bg),),
         backgroundColor: C.primary,
         iconTheme: IconThemeData(color: C.bg),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 18,
+            color: C.bg,
+          ),
+          onPressed: () =>    Get.offAll(() => const NewAdminDashboard())
+        ),
 
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: C.primaryDark,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.qr_code_scanner,size: 25,),
-        label: const Text("Sacn",style: TextStyle(fontSize: 15),),
+        label: const Text("Scan",style: TextStyle(fontSize: 15),),
         onPressed: () {
           Navigator.push(
             context,
@@ -127,7 +138,14 @@ class _TapelineOutStockScreenState extends State<TapelineOutStockScreen> {
                   rows: filteredData.map((item) {
                     return DataRow(cells: [
                       DataCell(Text(item['id'].toString())),
-                      DataCell(Text(item['code'] ?? '')),
+                      DataCell(TextButton( onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const BarcodeEntryScreen(),
+                          ),
+                        );
+                      }, child: Text(item['code'] ?? '',),)),
                       DataCell(Text(item['balance'].toString())),
                       DataCell(Text(item['issueqty'].toString())),
                       DataCell(Text(item['issuekg'].toString())),

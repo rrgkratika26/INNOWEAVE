@@ -23,6 +23,7 @@ import '../../ScannedItem/Loom/LoomModelClass.dart';
 import '../../ScannedItem/Loom/LoomSuperiosrData.dart';
 import '../../ScannedItem/TAPELINE/modelClass/InReportmodel.dart';
 import '../../ScannedItem/TAPELINE/modelClass/TapeOutModel.dart';
+import '../../ScannedItem/TAPELINE/modelClass/tapeStockModel.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/ReportModelClass.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/WebbInReportModelClass.dart';
 import '../../ScannedItem/Webbing/ReportmodelClass/WebbingDropdownModel.dart';
@@ -39,8 +40,8 @@ import '../../util/sharedpreference/shared_preference.dart';
 import '../auth_exception.dart';
 
 class InStockService {
-  static const String baseUrl = 'http://192.168.29.125:7165/api';
-  // static const String baseUrl ='http://190.92.175.47/Qualipack/api';
+  // static const String baseUrl = 'http://192.168.29.125:7165/api';
+  static const String baseUrl ='http://190.92.175.47/Qualipack/api';
   // static const String baseUrl = 'http://190.92.175.47:80/api/api';
   // static const String baseUrl = 'http://190.92.175.47/ShriShakti/api';
 
@@ -1421,7 +1422,6 @@ class InStockService {
     );
     // _checkUnauthorized(response);
     debugPrint("webb url 👉 $url");
-
     debugPrint("CHECK BARCODE RESPONSE 👉 ${response.body}");
 
     return jsonDecode(response.body);
@@ -1431,7 +1431,7 @@ class InStockService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/Webbing/webbing-report'),
-        headers: {"Content-Type": "application/json"},
+        headers: await authHeaders(),
       );
       // _checkUnauthorized(response);
 
@@ -2515,6 +2515,7 @@ class InStockService {
     final response = await http.get(url,headers: await authHeaders());
 
     if (response.statusCode == 200) {
+      print("RESPONSE Tape Stock Report BODY: ${response.body}");
       final List data = jsonDecode(response.body);
 
       return data
@@ -2523,5 +2524,26 @@ class InStockService {
     } else {
       throw Exception("Failed to load Tapeline Report");
     }
+  }
+
+  static Future<List<TapeStockReportModel>> fetchTapeStock({
+    required int page,
+    required int pageSize,
+  }) async {
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/Tapeline/tapeline-stock?page=$page&pageSize=$pageSize'),
+      headers: await authHeaders()
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      return data
+          .map((e) => TapeStockReportModel.fromJson(e))
+          .toList();
+    }
+
+    throw Exception("Failed to load Tape Stock");
   }
 }

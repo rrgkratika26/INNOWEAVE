@@ -48,7 +48,7 @@ class WebbingInReportModel {
       articleNo: json['articleNo'] ?? '',
       supervisorName: json['supervisorName'] ?? '',
       shift: json['shift'] ?? '',
-      date: DateFormat("MM/dd/yyyy HH:mm:ss")
+      date: DateFormat("MM/dd/yyyy")
           .parse(json['date'])
           .toLocal(),
       time: json['time'] ?? '',

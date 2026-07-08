@@ -6,7 +6,6 @@ import '../../../Color/Colorclass.dart';
 import '../../../util/widget/CountRecords/CountRecords.dart';
 import '../modelClass/InReportmodel.dart';
 
-
 // ── Screen ───────────────────────────────────────────────────────────────────
 
 class TapeInReports extends StatefulWidget {
@@ -35,11 +34,11 @@ class _TapeInReportsState extends State<TapeInReports> {
 
       final matchQ =
           q.isEmpty ||
-              r.code.toLowerCase().contains(q) ||
-              r.party.toLowerCase().contains(q) ||
-              r.supervisor.toLowerCase().contains(q) ||
-              r.recipeType.toLowerCase().contains(q) ||
-              r.qualityStatus.toLowerCase().contains(q);
+          r.code.toLowerCase().contains(q) ||
+          r.party.toLowerCase().contains(q) ||
+          r.supervisor.toLowerCase().contains(q) ||
+          r.recipeType.toLowerCase().contains(q) ||
+          r.qualityStatus.toLowerCase().contains(q);
 
       final fromDate = _from != null
           ? DateTime(_from!.year, _from!.month, _from!.day)
@@ -131,10 +130,7 @@ class _TapeInReportsState extends State<TapeInReports> {
     return Scaffold(
       backgroundColor: C.bg,
       appBar: AppBar(
-        title: const Text(
-          "Tapeline In Reports",
-          style: TextStyle(color: C.bg),
-        ),
+        title: const Text("Tapeline In Reports", style: TextStyle(color: C.bg)),
         flexibleSpace: Container(
           decoration: const BoxDecoration(color: C.appBar1),
         ),
@@ -146,21 +142,21 @@ class _TapeInReportsState extends State<TapeInReports> {
 
           _isLoading
               ? const Expanded(
-            child: Center(
-              child: CircularProgressIndicator(color: C.appBar3),
-            ),
-          )
+                  child: Center(
+                    child: CircularProgressIndicator(color: C.appBar3),
+                  ),
+                )
               : _filtered.isEmpty
               ? Expanded(child: _emptyState())
               : Expanded(
-            child: Column(
-              children: [
-                Expanded(child: _table(_filtered)),
+                  child: Column(
+                    children: [
+                      Expanded(child: _table(_filtered)),
 
-                _paginationBar(),
-              ],
-            ),
-          ),
+                      _paginationBar(),
+                    ],
+                  ),
+                ),
         ],
       ),
     );
@@ -203,18 +199,18 @@ class _TapeInReportsState extends State<TapeInReports> {
                     ),
                     suffixIcon: _query.isNotEmpty
                         ? IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: C.textHigh,
-                        size: 18,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _query = '';
-                          _searchCtrl.clear();
-                        });
-                      },
-                    )
+                            icon: const Icon(
+                              Icons.close,
+                              color: C.textHigh,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _query = '';
+                                _searchCtrl.clear();
+                              });
+                            },
+                          )
                         : null,
                     filled: true,
                     fillColor: Colors.white12,
@@ -315,22 +311,22 @@ class _TapeInReportsState extends State<TapeInReports> {
               ),
 
               columns: [
-                 DataColumn(label: _head("ID")),
-                  DataColumn(label: _head("Code")),
-                  DataColumn(label: _head("Party")),
-                  DataColumn(label: _head("Supervisor")),
-                  DataColumn(label: _head("Recipe")),
-                  DataColumn(label: _head("DNR")),
-                  DataColumn(label: _head("Width")),
-                  DataColumn(label: _head("Gross")),
-                  DataColumn(label: _head("Tare")),
-                  DataColumn(label: _head("Net")),
-                  DataColumn(label: _head("Balance")),
-                  DataColumn(label: _head("Quality")),
-                  DataColumn(label: _head("Plant")),
-                  DataColumn(label: _head("Date")),
-                  DataColumn(label: _head("Time")),
-                ],
+                DataColumn(label: _head("ID")),
+                DataColumn(label: _head("Code")),
+                DataColumn(label: _head("Party")),
+                DataColumn(label: _head("Supervisor")),
+                DataColumn(label: _head("Recipe")),
+                DataColumn(label: _head("DNR")),
+                DataColumn(label: _head("Width")),
+                DataColumn(label: _head("Gross")),
+                DataColumn(label: _head("Tare")),
+                DataColumn(label: _head("Net")),
+                DataColumn(label: _head("Balance")),
+                DataColumn(label: _head("Quality")),
+                DataColumn(label: _head("Plant")),
+                DataColumn(label: _head("Date")),
+                DataColumn(label: _head("Time")),
+              ],
 
               rows: List.generate(data.length, (i) {
                 final r = data[i];
@@ -362,11 +358,7 @@ class _TapeInReportsState extends State<TapeInReports> {
                     ),
                     DataCell(_statusBadge(r.qualityStatus)),
                     DataCell(_cell(r.plant)),
-                    DataCell(
-                      _cell(
-                        DateFormat("dd-MM-yyyy").format(r.date),
-                      ),
-                    ),
+                    DataCell(_cell(DateFormat("dd-MM-yyyy").format(r.date))),
                     DataCell(_cell(r.time)),
                   ],
                 );
@@ -426,12 +418,12 @@ class _TapeInReportsState extends State<TapeInReports> {
   }
 
   Widget _cell(
-      String text, {
-        double? width,
-        bool isBold = false,
-        bool mono = false,
-        Color? color,
-      }) {
+    String text, {
+    double? width,
+    bool isBold = false,
+    bool mono = false,
+    Color? color,
+  }) {
     return SizedBox(
       width: width,
       child: Text(

@@ -17,7 +17,7 @@ class _BarcodeEntryScreenState extends State<BarcodeEntryScreen> {
   String? selectedSupervisor;
   String? selectedOperator;
   String? selectedDept;
-
+  bool isSaved = false;
   Map<String, dynamic>? barcodeData;
   bool isBarcodeLoading = false;
 
@@ -105,7 +105,11 @@ class _BarcodeEntryScreenState extends State<BarcodeEntryScreen> {
   }
 
   Future<void> _saveOutstock() async {
-    setState(() => isSaving = true);
+    if (isSaving || isSaved) return;
+
+    setState(() {
+      isSaving = true;
+    });
     try {
       double existingIssueQty =
           double.tryParse(barcodeData?['issuekg']?.toString() ?? "0") ?? 0;
@@ -134,23 +138,29 @@ class _BarcodeEntryScreenState extends State<BarcodeEntryScreen> {
       String message = response['message'] ?? "Something went wrong";
 
       if (!mounted) return;
-      setState(() => isSaving = false);
+      setState(() {
+        isSaving = false;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: status ? Colors.green.shade600 : Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor:
+          status ? Colors.green.shade600 : Colors.red.shade600,
           duration: const Duration(seconds: 1),
         ),
       );
 
       if (status) {
-        Future.delayed(const Duration(seconds: 1), () {
-          Get.off(() => const TapelineOutStockScreen());
+        setState(() {
+          isSaved = true;
         });
+
+        await Future.delayed(const Duration(seconds: 1));
+
+        if (!mounted) return;
+
+        Get.offAll(() => const TapelineOutStockScreen());
       }
     } catch (e) {
       if (!mounted) return;
@@ -261,7 +271,9 @@ class _BarcodeEntryScreenState extends State<BarcodeEntryScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: (isChecked && !isSaving) ? _saveOutstock : null,
+                onPressed: (isChecked && !isSaving && !isSaved)
+                    ? _saveOutstock
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isChecked ? C.primaryDark : Colors.grey.shade300,
                   disabledBackgroundColor: Colors.grey.shade300,

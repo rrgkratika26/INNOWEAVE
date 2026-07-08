@@ -330,10 +330,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 13, color: C.primaryDark),
-        ),
+        Text(label, style: const TextStyle(fontSize: 13, color: C.primaryDark)),
 
         DropdownButtonFormField<String>(
           initialValue: value != null && items.contains(value) ? value : null,
@@ -351,11 +348,12 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
   }
 
   Widget _textField(
-    String label,
-    TextEditingController controller, {
-    TextInputType keyboardType = TextInputType.text,
-    String placeholder = '',
-  }) {
+      String label,
+      TextEditingController controller, {
+        TextInputType keyboardType = TextInputType.text,
+        String placeholder = '',
+        bool readOnly = false,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -363,14 +361,15 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
           label,
           style: const TextStyle(fontSize: 13, color: C.primaryDark),
         ),
-
         TextField(
           controller: controller,
+          readOnly: readOnly,
           keyboardType: keyboardType,
           style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(hintText: placeholder),
-          onChanged:
-              (label == 'Gross Weight (kg)' || label == 'Tare Weight (kg)')
+          onChanged: (!readOnly &&
+              (label == 'Gross Weight (kg)' ||
+                  label == 'Tare Weight (kg)'))
               ? (_) => _recalcNet()
               : null,
         ),
@@ -529,6 +528,8 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                   'Batch No',
                   _batchController,
                   placeholder: '',
+                  keyboardType: TextInputType.none,
+                  readOnly: true
                 ),
               ),
               const SizedBox(width: 5),
@@ -607,10 +608,7 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
             ),
             child: const Text(
               'Generate Code',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ),
@@ -638,7 +636,6 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
                   "tapePlant": _selectedPlant,
                   "partyName": widget.customerName,
 
-
                   "mPurchaseOrderNo": widget.articleNo,
                   "articleNo": widget.extra13,
                   "date": now.toString().split(' ')[0],
@@ -659,37 +656,20 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
 
                 final res = await api.saveTapeLineEntry(body);
 
-                if (res["success"] == true) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(res["message"] ?? "Saved Successfully"),
-                      backgroundColor: Colors.green,
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
+                print(res);
+                if (!mounted) return;
 
-                  await Future.delayed(const Duration(seconds: 1));
-
-                  if (!mounted) return;
-
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (_) => const RecentEntriesScreen(),
-                    ),
-                        (route) => false,
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(res["message"] ?? "Save Failed"),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: $e")),
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RecentEntriesScreen(),
+                  ),
+                      (route) => false,
                 );
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
               }
             },
             style: ElevatedButton.styleFrom(
@@ -702,272 +682,14 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
             ),
             child: const Text(
               'Save',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ),
         ),
       ],
     );
   }
-  // Widget _buildGenerateButton() {
-  //   return SizedBox(
-  //     // width: double.infinity,
-  //     child: ElevatedButton(
-  //       onPressed: () {
-  //         setState(() {
-  //           _generatedBatch = _generateBatchNumber();
-  //           _generatedCode = _generateFinalCode();
-  //
-  //           _batchController.text = _generatedBatch!;
-  //           _generatedCodeController.text = _generatedCode ?? '';
-  //         });
-  //       },
-  //       style: ElevatedButton.styleFrom(
-  //         backgroundColor: const Color(0xFF212121),
-  //         foregroundColor: Colors.white,
-  //         padding: const EdgeInsets.symmetric(vertical: 14),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(12),
-  //         ),
-  //         elevation: 0,
-  //       ),
-  //       child: const Text(
-  //         'Generate Code',
-  //         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-  //       ),
-  //     ),
-  //   );
-  // }
-  //
-  // Widget _buildActionRow() {
-  //   return Row(
-  //     children: [
-  //       Expanded(
-  //         child: OutlinedButton(
-  //           onPressed: () {},
-  //           style: OutlinedButton.styleFrom(
-  //             padding: const EdgeInsets.symmetric(vertical: 12),
-  //             side: const BorderSide(color: Color(0xFFE0E0E0), width: 0.5),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //           ),
-  //           child: const Text(
-  //             '+ New Entry',
-  //             style: TextStyle(
-  //               fontSize: 13,
-  //               fontWeight: FontWeight.w500,
-  //               color: Color(0xFF212121),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       const SizedBox(width: 10),
-  //       Expanded(
-  //         child: ElevatedButton(
-  //           onPressed: () async {
-  //             try {
-  //               final now = DateTime.now();
-  //
-  //               final time =
-  //                   "${now.hour}:${now.minute.toString().padLeft(2, '0')}:00";
-  //
-  //               final batch = _generateBatchNumber();
-  //               final code = _generateFinalCode();
-  //
-  //               _batchController.text = batch;
-  //               _generatedCodeController.text = code;
-  //               final body = {
-  //                 "srNo": srNo,
-  //                 "operator": _selectedOperator,
-  //                 "tapePlant": _selectedPlant,
-  //                 "partyName": widget.customerName,
-  //                 "date": now.toString().split(' ')[0],
-  //                 "time": time,
-  //                 "mPurchaseOrderNo": widget.articleNo,
-  //                 "articleNo": widget.extra13,
-  //                 "bom": widget.bomNumber,
-  //                 "inquiryNo": widget.inquiryNo,
-  //                 "recipeType": _selectedRecipe,
-  //                 "dnr": _dnrController.text,
-  //                 "widthMM": _widthController.text,
-  //                 "grossWeight": _grossController.text,
-  //                 "tareWeight": _tareController.text,
-  //                 "netWeight": _netController.text,
-  //                 "shift": _selectedShift,
-  //                 "batchNo": _batchController.text,
-  //                 "generateCode": _generatedCodeController.text,
-  //                 "ppLotNo": _ppLotController.text,
-  //                 "remark": _remarkController.text,
-  //               };
-  //               // final body = {
-  //               //   "srNo": srNo ?? "",
-  //               //   "operator": _selectedOperator,
-  //               //   "tapePlant": _selectedPlant,
-  //               //   "partyName": _selectedParty ?? "",
-  //               //   "mPurchaseOrderNo": _selectedPO ?? "",
-  //               //   "articleNo": _selectedArticle ?? "",
-  //               //   "date": now.toString().split(' ')[0],
-  //               //   "time": time, // ✅ now valid
-  //               //   "recipeType": _selectedRecipe ?? "",
-  //               //   "dnr": _dnrController.text,
-  //               //   "widthMM": _widthController.text,
-  //               //   "grossWeight": _grossController.text,
-  //               //   "tareWeight": _tareController.text,
-  //               //   "netWeight": _netController.text,
-  //               //   "remark": _remarkController.text,
-  //               //   "generateCode": code,
-  //               //   "shift": _selectedShift,
-  //               //   "batchNo": batch,
-  //               //   "bom":  widget.bomNumber,
-  //               //   "ppLotNo": _ppLotController.text,
-  //               // };
-  //
-  //               final res = await api.saveTapeLineEntry(body);
-  //
-  //               if (res["success"] == true) {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   SnackBar(
-  //                     content: Text(res["message"]),
-  //                     backgroundColor: Colors.green,
-  //                   ),
-  //                 );
-  //
-  //                 Future.delayed(const Duration(seconds: 1), () {
-  //                   Navigator.pushReplacement(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                       builder: (_) => const RecentEntriesScreen(),
-  //                     ),
-  //                   );
-  //                 });
-  //               } else {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   SnackBar(
-  //                     content: Text(res["message"] ?? "Save failed"),
-  //                     backgroundColor: Colors.red,
-  //                   ),
-  //                 );
-  //               }
-  //             } catch (e) {
-  //               ScaffoldMessenger.of(
-  //                 context,
-  //               ).showSnackBar(SnackBar(content: Text("Error: $e")));
-  //             }
-  //           },
-  //           style: ElevatedButton.styleFrom(
-  //             backgroundColor: const Color(0xFFE8F5E9),
-  //             foregroundColor: const Color(0xFF2E7D32),
-  //             padding: const EdgeInsets.symmetric(vertical: 12),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //             elevation: 0,
-  //           ),
-  //           child: const Text(
-  //             'Save',
-  //             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
-  // ─── Recent Entries Table ─────────────────────────────────────────────────
-  // Widget _buildFibcDetailsCard() {
-  //   return _sectionCard(
-  //     label: "FIBC Details",
-  //     child: Column(
-  //       children: [
-  //
-  //         Row(
-  //           children: [
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "Inquiry No",
-  //                 widget.inquiryNo,
-  //                 icon: Icons.confirmation_number_outlined,
-  //               ),
-  //             ),
-  //
-  //             const SizedBox(width: 12),
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "BOM No",
-  //                 widget.bomNumber,
-  //                 icon: Icons.account_tree_outlined,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //
-  //         const SizedBox(height: 14),
-  //
-  //         _readOnlyField(
-  //           "Customer Name",
-  //           widget.customerName,
-  //           icon: Icons.business,
-  //         ),
-  //
-  //         const SizedBox(height: 14),
-  //
-  //         Row(
-  //           children: [
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "Article No",
-  //                 widget.articleNo,
-  //                 icon: Icons.inventory_2_outlined,
-  //               ),
-  //             ),
-  //
-  //             const SizedBox(width: 12),
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "Extra",
-  //                 widget.extra13,
-  //                 icon: Icons.info_outline,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //
-  //         const SizedBox(height: 14),
-  //
-  //         Row(
-  //           children: [
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "Required MTR",
-  //                 widget.totalMtr.toString(),
-  //                 icon: Icons.straighten,
-  //               ),
-  //             ),
-  //
-  //             const SizedBox(width: 12),
-  //
-  //             Expanded(
-  //               child: _readOnlyField(
-  //                 "Required KG",
-  //                 widget.totalKg.toString(),
-  //                 icon: Icons.scale_outlined,
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget _buildRecentEntries() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1052,8 +774,6 @@ class _TapeLineEntryScreenState extends State<TapeLineEntryScreen> {
     return "${now.day.toString().padLeft(2, '0')}-${months[now.month - 1]}-${now.year}";
   }
 }
-
-
 
 Widget _readOnlyField(String label, String value, {IconData? icon}) {
   return Column(
