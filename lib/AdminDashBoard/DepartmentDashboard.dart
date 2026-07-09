@@ -248,10 +248,10 @@ class _AdminDashboard extends StatelessWidget {
             _Header(ctrl: ctrl, isMobile: isMobile),
             DashboardTopBarAnimated(
               unit: ctrl.unit.value,
-              fromDate: DateFormat('yyyy-MM-dd')
-                  .format(DateTime.now().subtract(const Duration(days: 6))),
-              toDate: DateFormat('yyyy-MM-dd')
-                  .format(DateTime.now()),
+              fromDate: DateFormat(
+                'yyyy-MM-dd',
+              ).format(DateTime.now().subtract(const Duration(days: 6))),
+              toDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
             ),
             SizedBox(height: 10),
             Expanded(
@@ -284,9 +284,6 @@ class _AdminDashboard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  DEPT-DIRECT DASHBOARD  (non-PADMIN users)
-// ─────────────────────────────────────────────
 class _DeptDashboard extends StatelessWidget {
   final DashboardController ctrl;
   final String department;

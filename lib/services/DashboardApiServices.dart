@@ -5,8 +5,11 @@ import 'package:http/http.dart' as http;
 
 import '../AdminDashBoard/Dashboard Summary.dart';
 import '../InquiryScreen/Marketing/MarketingModel.dart';
+import '../JBL/JBLWebbing/Reports_model/outReportModel.dart';
 import '../ScannedItem/Webbing/ReportmodelClass/BomDetailModel.dart';
+import '../ScannedItem/Webbing/ReportmodelClass/ReportModelClass.dart';
 import '../ScannedItem/Webbing/ReportmodelClass/SaveWebbingEntry.dart';
+import '../ScannedItem/Webbing/ReportmodelClass/WebOutDetailsclass.dart';
 import '../ScannedItem/Webbing/ReportmodelClass/WebbingEntryModel.dart';
 import '../ScannedItem/Webbing/ReportmodelClass/webSaveEntriesList.dart';
 import '../util/sharedpreference/shared_preference.dart';
@@ -268,4 +271,72 @@ class DashboardService {
 
     throw Exception(response.body);
   }
+
+
+  Future<List<dynamic>> getCuttingScannedItems(String date) async {
+    final url =
+        '${InStockService.baseUrl}/Cutting/CuttingInScannedItem?date=$date';
+
+    print("URL : $url");
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: await InStockService.authHeaders(),
+    );
+
+    print("Status Code : ${response.statusCode}");
+    print("Response : ${response.body}");
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+        'Status: ${response.statusCode}\nResponse: ${response.body}',
+      );
+    }
+  }
+
+  // static Future<WebbingOutReportModel?> fetchWebbingScannedOutItems(
+  //     String date) async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('${InStockService.baseUrl}/Webbing/WebbingOutScanned?date=$date'),
+  //       headers: await InStockService.authHeaders(),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final jsonData = jsonDecode(response.body);
+  //       return WebbingOutReportModel.fromJson(jsonData);
+  //     }
+  //
+  //     return null;
+  //   } catch (e) {
+  //     print(e);
+  //     return null;
+  //   }
+  // }
+
+  static Future<WebbingOutDetailsModel?> fetchWebbingScannedOutItems(
+      String date) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '${InStockService.baseUrl}/Webbing/WebbingOutScanned?date=$date'),
+        headers: await InStockService.authHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = jsonDecode(response.body);
+
+        return WebbingOutDetailsModel.fromJson(jsonData);
+      }
+
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+
 }

@@ -93,6 +93,8 @@ import '../ScannedItem/TAPELINE/Reports/TapeStockReport.dart';
 import '../ScannedItem/TAPELINE/TApeline_IN.dart';
 import '../ScannedItem/TAPELINE/TapeInEnrtyList.dart';
 import '../ScannedItem/Webbing/WebSaveEntries.dart';
+import '../ScannedItem/Webbing/WebbingInStock.dart';
+import '../ScannedItem/Webbing/WebbingOutStock.dart';
 import '../ScannedItem/Webbing/WebbingScreen.dart';
 import '../Visa/Loom/FiBCLoomList_1screen.dart';
 import '../screen/BagProduction/BagProduction/BagProductionEntryScreen.dart';
@@ -450,12 +452,12 @@ class AppRoutes {
 
     GetPage(
       name: webbingIn,
-      page: () => const WebbingScreen(screenType: 'IN'),
+      page: () => const WebbingInStock(),
     ),
 
     GetPage(
       name: webbingOut,
-      page: () => const WebbingScreen(screenType: 'OUT'),
+      page: () => const WebOutStock(),
     ),
     GetPage(
       name: AppRoutes.webSaveEntryScreen,

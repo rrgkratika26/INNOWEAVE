@@ -52,17 +52,31 @@ class _CuttingScreenState extends State<CuttingScreen> {
         shadowColor: Colors.black.withOpacity(0.1),
 
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: C.textHigh),
+          icon: const Icon(Icons.arrow_back_ios_new, color: C.bg),
           onPressed: () => Navigator.pop(context),
         ),
 
-        title: Text(
-          unitTitle.isNotEmpty ? unitTitle : 'Unit Name',
-          style: TextStyle(
-            color: C.bg,
-            fontSize: isTablet ? 20 : 18,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "IN Stock",
+              style: TextStyle(
+                color: C.bg,
+                fontSize: isTablet ? 11 : 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            Text(
+              unitTitle.isNotEmpty ? unitTitle : 'Unit Name',
+              style: TextStyle(
+                color: C.primaryDark,
+                fontSize: isTablet ? 5 : 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
 
         actions: [

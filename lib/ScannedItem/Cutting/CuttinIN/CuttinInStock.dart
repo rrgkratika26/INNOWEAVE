@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:IMS/services/DashboardApiServices.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,13 +42,24 @@ class _CuttingInScreenState extends State<CuttingInScreen> {
   void initState() {
     super.initState();
     _loadData();
+    loadTodayCount();
   }
 
   Future<void> _loadData() async {
     await controller.loadInitialData();
     setState(() {});
   }
+  Future<void> loadTodayCount() async {
+    try {
+      final items = await DashboardService().getCuttingScannedItems(getApiDate());
 
+      setState(() {
+        totalScanned = items.length;
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
   // ================= VALIDATION =================
 
   void _showValidationSnackBar() {
@@ -96,7 +108,7 @@ class _CuttingInScreenState extends State<CuttingInScreen> {
               _buildDepartmentField(isTablet, isSmallScreen),
               SizedBox(height: isTablet ? 32 : 24),
 
-              // _buildScanningCard(isTablet, isDesktop),
+              _buildScanningCard(isTablet, isDesktop),
               SizedBox(height: isTablet ? 24 : 20),
 
               // Action Buttons
@@ -353,80 +365,82 @@ class _CuttingInScreenState extends State<CuttingInScreen> {
   // }
 
   Widget _buildScanningCard(bool isTablet, bool isDesktop) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReportDetailScreen(date: getApiDate()),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(
-        isDesktop ? 24 : (isTablet ? 20 : 16),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(
-            isDesktop ? 24 : (isTablet ? 20 : 16),
-          ),
+    return Center(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ReportDetailScreen(date: getApiDate()),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(
+          isDesktop ? 24 : (isTablet ? 20 : 16),
         ),
-        padding: EdgeInsets.all(isDesktop ? 32 : (isTablet ? 28 : 24)),
-        child: Column(
-          children: [
-            // Icon
-            Text(
-              'Total Items Scanned',
-              style: TextStyle(
-                fontSize: isDesktop ? 18 : (isTablet ? 17 : 16),
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
-                letterSpacing: 0.3,
-              ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(
+              isDesktop ? 24 : (isTablet ? 20 : 16),
             ),
-
-            SizedBox(height: isDesktop ? 16 : (isTablet ? 14 : 12)),
-
-            Text(
-              '$totalScanned',
-              style: TextStyle(
-                fontSize: isDesktop ? 56 : (isTablet ? 52 : 48),
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                height: 1,
-              ),
-            ),
-
-            SizedBox(height: isDesktop ? 12 : (isTablet ? 10 : 8)),
-
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 16 : (isTablet ? 14 : 12),
-                vertical: isDesktop ? 8 : (isTablet ? 7 : 6),
+          ),
+          padding: EdgeInsets.all(isDesktop ? 32 : (isTablet ? 28 : 24)),
+          child: Column(
+            children: [
+              // Icon
+              Text(
+                'Total Items Scanned',
+                style: TextStyle(
+                  fontSize: isDesktop ? 18 : (isTablet ? 17 : 16),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                  letterSpacing: 0.3,
+                ),
               ),
 
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.calendar_today_rounded,
-                    size: isDesktop ? 16 : 14,
-                    color: Colors.grey,
-                  ),
-                  SizedBox(width: isTablet ? 8 : 6),
-                  Text(
-                    getCurrentDate(),
-                    style: TextStyle(
+              SizedBox(height: isDesktop ? 16 : (isTablet ? 14 : 12)),
+
+              Text(
+                '$totalScanned',
+                style: TextStyle(
+                  fontSize: isDesktop ? 56 : (isTablet ? 52 : 48),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  height: 1,
+                ),
+              ),
+
+              SizedBox(height: isDesktop ? 12 : (isTablet ? 10 : 8)),
+
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 16 : (isTablet ? 14 : 12),
+                  vertical: isDesktop ? 8 : (isTablet ? 7 : 6),
+                ),
+
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      size: isDesktop ? 16 : 14,
                       color: Colors.grey,
-                      fontSize: isDesktop ? 14 : (isTablet ? 13 : 12),
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
-                ],
+                    SizedBox(width: isTablet ? 8 : 6),
+                    Text(
+                      getCurrentDate(),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: isDesktop ? 14 : (isTablet ? 13 : 12),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -668,9 +682,7 @@ class _CuttingInScreenState extends State<CuttingInScreen> {
         ),
       ),
     );
-    setState(() {
-      totalScanned++;
-    });
+    await loadTodayCount();
   }
 
   void _showWithoutScanDialog(bool isSmallScreen) {

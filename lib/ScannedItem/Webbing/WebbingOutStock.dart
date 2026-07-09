@@ -1,11 +1,13 @@
 import 'package:IMS/ScannedItem/Webbing/WebbingController.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Color/Colorclass.dart';
 import '../../QRScan/QrScanScreen.dart';
 import '../../screen/inStock/inStockController.dart';
 import '../../services/getSupervisors/getSupervisors.dart';
+import 'WebOutDetailScreen.dart';
 import 'WebbingBarcode.dart';
 import 'WebbingReports/OutReports.dart';
 
@@ -20,7 +22,7 @@ class _WebOutStockState extends State<WebOutStock> {
   // final controller = InStockWebController();
   late InStockWebController controller;
   late Future<void> _dropdownFuture;
-
+  String _unitTitle = '';
   String getApiDate() {
     final now = DateTime.now();
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
@@ -37,14 +39,11 @@ class _WebOutStockState extends State<WebOutStock> {
   }
 
   // ---------------- STATIC ISSUE TO ----------------
-  // ---------------- STATIC ISSUE TO ----------------
-  final List<String> issueToList = ['CUTTING','FINISHING','OTHERS'];
+  final List<String> issueToList = ['CUTTING', 'FINISHING', 'OTHERS'];
 
   String? selectedIssueTo; // Local state for IssueTo
   String department = 'WEBBING';
   int totalScanned = 0;
-
-  // ================= VALIDATION =================
 
   bool _isFormValid() {
     return controller.selectedOperator != null &&
@@ -53,6 +52,14 @@ class _WebOutStockState extends State<WebOutStock> {
         controller.selectedSupervisor!.isNotEmpty &&
         selectedIssueTo != null &&
         selectedIssueTo!.isNotEmpty;
+  }
+
+  Future<void> _loadUnit() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _unitTitle = prefs.getString('unit') ?? 'UNIT';
+    });
   }
 
   void _showValidationSnackBar() {
@@ -72,80 +79,87 @@ class _WebOutStockState extends State<WebOutStock> {
     super.initState();
     controller = InStockWebController();
     _dropdownFuture = controller.loadLookupData();
+    _loadUnit();
   }
-
-  // Future<void> _loadData() async {
-  //   await controller.loadWebInitialData();
-  //   setState(() {});
-  // }
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width > 600;
     final size = MediaQuery.of(context).size;
-    final isTablet = size.width > 600;
     final isSmallScreen = size.width < 360;
 
-    return FutureBuilder<void>(
-      future: _dropdownFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: C.appBar3,));
-        }
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(isTablet ? 24 : (isSmallScreen ? 12 : 16)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildDropdown(
-                  label: 'Choose an Operator',
-                  value: controller.selectedOperator,
-                  items: controller.operators,
-                  icon: Icons.person,
-                  isTablet: isTablet,
-                  isSmallScreen: isSmallScreen,
-                  onChanged: (value) =>
-                      setState(() => controller.selectedOperator = value),
-                ),
-
-                SizedBox(height: isTablet ? 16 : 12),
-
-                _buildDropdown(
-                  label: 'Choose a Supervisor',
-                  value: controller.selectedSupervisor,
-                  items: controller.supervisors,
-                  icon: Icons.supervisor_account,
-                  isTablet: isTablet,
-                  isSmallScreen: isSmallScreen,
-                  onChanged: (value) =>
-                      setState(() => controller.selectedSupervisor = value),
-                ),
-
-                SizedBox(height: isTablet ? 16 : 12),
-
-                _buildDropdown(
-                  label: 'Issue To',
-                  value: selectedIssueTo,
-                  items: issueToList,
-                  icon: Icons.account_tree,
-                  isTablet: isTablet,
-                  isSmallScreen: isSmallScreen,
-                  onChanged: (value) => setState(() => selectedIssueTo = value),
-                ),
-
-                SizedBox(height: isTablet ? 16 : 12),
-
-                _buildDepartmentField(isTablet, isSmallScreen),
-                SizedBox(height: isTablet ? 32 : 24),
-
-                // _buildScanningCard(isTablet, isSmallScreen),
-                // SizedBox(height: isTablet ? 24 : 20),
-                _buildActionButtons(isTablet, isSmallScreen),
-              ],
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade200,
+        elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "${_unitTitle.isNotEmpty ? _unitTitle : 'Unit'} WEBBING",
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: isTablet ? 20 : 18,
+            fontWeight: FontWeight.bold,
           ),
-        );
-      },
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 24 : (isSmallScreen ? 12 : 16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDropdown(
+                label: 'Choose an Operator',
+                value: controller.selectedOperator,
+                items: controller.operators,
+                icon: Icons.person,
+                isTablet: isTablet,
+                isSmallScreen: isSmallScreen,
+                onChanged: (value) =>
+                    setState(() => controller.selectedOperator = value),
+              ),
+
+              SizedBox(height: isTablet ? 16 : 12),
+
+              _buildDropdown(
+                label: 'Choose a Supervisor',
+                value: controller.selectedSupervisor,
+                items: controller.supervisors,
+                icon: Icons.supervisor_account,
+                isTablet: isTablet,
+                isSmallScreen: isSmallScreen,
+                onChanged: (value) =>
+                    setState(() => controller.selectedSupervisor = value),
+              ),
+
+              SizedBox(height: isTablet ? 16 : 12),
+
+              _buildDropdown(
+                label: 'Issue To',
+                value: selectedIssueTo,
+                items: issueToList,
+                icon: Icons.account_tree,
+                isTablet: isTablet,
+                isSmallScreen: isSmallScreen,
+                onChanged: (value) => setState(() => selectedIssueTo = value),
+              ),
+
+              SizedBox(height: isTablet ? 16 : 12),
+
+              _buildDepartmentField(isTablet, isSmallScreen),
+              SizedBox(height: isTablet ? 32 : 24),
+
+              _buildScanningCard(isTablet, isSmallScreen),
+              SizedBox(height: isTablet ? 24 : 20),
+              _buildActionButtons(isTablet, isSmallScreen),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -239,48 +253,52 @@ class _WebOutStockState extends State<WebOutStock> {
     return InkWell(
       borderRadius: BorderRadius.circular(20),
       onTap: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (_) => WebbOutReportDetailsScreen(),
-        //   ),
-        // );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WebbOutReportDetailsScreen(
+              date: getApiDate(),
+            ),
+          ),
+        );
       },
-      child: Container(
-        decoration: _boxDecoration(borderRadius: 20),
-        padding: const EdgeInsets.all(24),
-        child: FutureBuilder<int>(
-          future: InStockService().getOutScannedItemsCount(getApiDate()),
-          builder: (context, snapshot) {
-            final count = snapshot.data ?? 0;
+      child: Center(
+        child: Container(
+          decoration: _boxDecoration(borderRadius: 20),
+          padding: const EdgeInsets.all(24),
+          child: FutureBuilder<int>(
+            future: InStockService().getOutScannedItemsCount(getApiDate()),
+            builder: (context, snapshot) {
+              final count = snapshot.data ?? 0;
 
-            return Column(
-              children: [
-                const Text(
-                  'Total Items Out',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  snapshot.connectionState == ConnectionState.waiting
-                      ? '...'
-                      : '$count',
-                  style: const TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
+              return Column(
+                children: [
+                  const Text(
+                    'Total Items Out',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                ),
-                Text(
-                  getCurrentDate(),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 16),
+                  Text(
+                    snapshot.connectionState == ConnectionState.waiting
+                        ? '...'
+                        : '$count',
+                    style: const TextStyle(
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
+                  Text(
+                    getCurrentDate(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

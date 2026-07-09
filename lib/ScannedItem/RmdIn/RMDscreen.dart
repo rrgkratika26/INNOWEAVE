@@ -7,7 +7,6 @@ import '../../Color/Colorclass.dart';
 import '../../screen/inStock/inStockScreen.dart';
 import 'RMDStockIn.dart';
 
-
 class RmdScreen extends StatefulWidget {
   final String screenType; // "IN" or "OUT"
   const RmdScreen({Key? key, required this.screenType}) : super(key: key);
@@ -50,6 +49,7 @@ class _RmdScreenState extends State<RmdScreen> {
         backgroundColor: C.appBar1,
         elevation: 2,
         iconTheme: IconThemeData(color: C.primaryLight),
+
         // flexibleSpace: Container(
         //   decoration: BoxDecoration(
         //     gradient: LinearGradient(
@@ -59,7 +59,6 @@ class _RmdScreenState extends State<RmdScreen> {
         //     ),
         //   ),
         // ),
-
         shadowColor: Colors.black.withOpacity(0.1),
 
         // important
@@ -80,19 +79,21 @@ class _RmdScreenState extends State<RmdScreen> {
         title: Row(
           children: [
             Text(
-              _unitTitle.isNotEmpty ? _unitTitle : 'Unit Name',
+              'RMD ${widget.screenType}',
               style: TextStyle(
                 color: C.primaryLight,
                 fontSize: isTablet ? 20 : 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(width: 5,),
+
+            SizedBox(width: 5),
+
             Text(
-              'RMD ${widget.screenType}',
+              _unitTitle.isNotEmpty ? _unitTitle : 'Unit Name',
               style: TextStyle(
-                color: C.primaryLight,
-                fontSize: isTablet ? 20 : 18,
+                color: C.primaryDark,
+                fontSize: isTablet ? 9 : 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -181,7 +182,7 @@ class _RmdScreenState extends State<RmdScreen> {
             style: TextStyle(
               fontSize: isTablet ? 18 : 16,
               fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-              color: isActive ?C.actionOrange: Colors.grey[600],
+              color: isActive ? C.actionOrange : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 4),

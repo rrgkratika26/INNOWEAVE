@@ -2,6 +2,7 @@ import 'package:IMS/services/GlobalLoader/GloabalUnit.dart';
 import 'package:IMS/util/sharedpreference/shared_preference.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../Color/Colorclass.dart';
 import '../../QRScan/QrScanScreen.dart';
 import '../../screen/inStock/ReportScreen.dart';
@@ -23,7 +24,7 @@ class _WebbingInStockState extends State<WebbingInStock> {
   // final controller = InStockWebController();
   late InStockWebController controller;
   late Future<void> _dropdownFuture;
-
+  String _unitTitle = '';
   String department = 'WEBBING';
   int totalScanned = 0;
   Future<WebbingReportModel?>? _reportFuture;
@@ -42,12 +43,18 @@ class _WebbingInStockState extends State<WebbingInStock> {
     controller = InStockWebController();
     _dropdownFuture = controller.loadWebInitialData();
     _reportFuture = InStockService.fetchWebbingScannedItems();
+    _loadUnit();
   }
 
-  Future<void> _loadData() async {
-    await controller.loadWebInitialData();
-    setState(() {});
+  Future<void> _loadUnit() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _unitTitle = prefs.getString('unit') ?? 'UNIT';
+    });
   }
+
+
 
   Future<void> _checkBarcodeApi(String barcode) async {
     showDialog(
@@ -106,59 +113,90 @@ class _WebbingInStockState extends State<WebbingInStock> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _dropdownFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    final isTablet = MediaQuery.of(context).size.width > 600;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildDropdown(
-                label: "Choose Operator",
-                value: controller.selectedOperator,
-                items: controller.operators,
-                icon: Icons.person,
-                onChanged: (val) =>
-                    setState(() => controller.selectedOperator = val),
-              ),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
 
-              const SizedBox(height: 12),
-
-              _buildDropdown(
-                label: "Choose Supervisor",
-                value: controller.selectedSupervisor,
-                items: controller.supervisors,
-                icon: Icons.supervisor_account,
-                onChanged: (val) =>
-                    setState(() => controller.selectedSupervisor = val),
-              ),
-
-              const SizedBox(height: 12),
-
-              _buildDropdown(
-                label: "Choose Storage Location",
-                value: controller.selectedLocation,
-                items: controller.locations,
-                icon: Icons.location_on,
-                onChanged: (val) =>
-                    setState(() => controller.selectedLocation = val),
-              ),
-
-              const SizedBox(height: 12),
-
-              _buildDepartmentCard(),
-              const SizedBox(height: 24),
-              _buildTotalCard(),
-              const SizedBox(height: 20),
-              _buildButtons(),
-            ],
+      appBar: AppBar(
+        backgroundColor: Colors.grey.shade200,
+        elevation: 2,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black87,
           ),
-        );
-      },
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          "${_unitTitle.isNotEmpty ? _unitTitle : 'Unit'} WEBBING",
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: isTablet ? 20 : 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+
+      body: FutureBuilder(
+        future: _dropdownFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildDropdown(
+                  label: "Choose Operator",
+                  value: controller.selectedOperator,
+                  items: controller.operators,
+                  icon: Icons.person,
+                  onChanged: (val) =>
+                      setState(() => controller.selectedOperator = val),
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildDropdown(
+                  label: "Choose Supervisor",
+                  value: controller.selectedSupervisor,
+                  items: controller.supervisors,
+                  icon: Icons.supervisor_account,
+                  onChanged: (val) =>
+                      setState(() => controller.selectedSupervisor = val),
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildDropdown(
+                  label: "Choose Storage Location",
+                  value: controller.selectedLocation,
+                  items: controller.locations,
+                  icon: Icons.location_on,
+                  onChanged: (val) =>
+                      setState(() => controller.selectedLocation = val),
+                ),
+
+                const SizedBox(height: 12),
+
+                _buildDepartmentCard(),
+                const SizedBox(height: 24),
+
+                _buildTotalCard(),
+                const SizedBox(height: 20),
+
+                _buildButtons(),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
